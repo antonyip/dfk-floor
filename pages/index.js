@@ -236,6 +236,7 @@ function CalcsPage()
     { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY' },
     { field: 'PROFESSION_MAIN', headerName: 'PROFESSION_MAIN' },
     { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT' },
+    { field: 'HERO_INFO_GENERATION', headerName: 'HERO_INFO_GENERATION' },
     { field: 'MIN_JEWEL', headerName: 'MIN_JEWEL' },
     { field: 'MAX_JEWEL', headerName: 'MAX_JEWEL' },
     { field: 'AVG_JEWEL', headerName: 'AVG_JEWEL' },
@@ -342,7 +343,7 @@ function HeroValuationPage()
   <div style={{ height: 600, width: '100%' }}>
     <Grid container spacing={2}>
       <Grid item md={12}>
-        <h2>Hero Valuation Page Calculator</h2>
+        <h2>Hero Valuation Page Calculator - Ignore this for now, its not right</h2>
       </Grid>
       <Grid item md={12}>
       <TextField id="HeroIDTextField" onChange={(v) => {setTextFieldHeroID(v.target.value)}} label="Outlined" variant="outlined" />
