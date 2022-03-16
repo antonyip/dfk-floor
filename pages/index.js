@@ -96,12 +96,9 @@ const AppBar = styled(MuiAppBar, {
 
 function AboutPage()
 {
-  return (<div><Card><CardHeader title="Solana NFT Dashboard"></CardHeader>
+  return (<div><Card><CardHeader title="DFK Stuffs"></CardHeader>
     <CardContent>
-      <p>Bounty Description - <a target="_blank" rel="noreferrer" href='https://flipsidecrypto.xyz/drops/3adspO7EM1pL89AKI5hbTD'>https://flipsidecrypto.xyz/drops/3adspO7EM1pL89AKI5hbTD</a></p>
-      <p>This dashboard shows the Sales of the NFT projects on the various Solana NFT Marketplaces. Feel free to explore the data!</p>
-      
-      <a target="_blank" rel="noreferrer" href='https://flipsidecrypto.xyz'><Image alt="" height={40} width={264} src="/powered.png"></Image></a>
+      Work in progress
     </CardContent>
     </Card></div>);
 }
@@ -174,21 +171,21 @@ function HeroValuePage()
   "HERO_PROFESSIONS_FISHING":"0"
   */
   const gridColDef = [
-    { field: 'BLOCK_TIMESTAMP', headerName: 'BLOCK_TIMESTAMP', width: 100 },
-    { field: 'HERO_ID', headerName: 'HERO_ID', width: 80 },
-    { field: 'TOTAL_JEWELS', headerName: 'TOTAL_JEWELS', width: 80 },
-    { field: 'SUMMONING_INFO_MAXSUMMONS', headerName: 'SUMMONING_INFO_MAXSUMMONS', width: 200 },
-    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT', width: 200 },
-    { field: 'HERO_INFO_STATGENES', headerName: 'HERO_INFO_STATGENES', width: 200 },
-    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY', width: 200 },
-    { field: 'HERO_INFO_GENERATION', headerName: 'HERO_INFO_GENERATION', width: 200 },
-    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS', width: 200 },
-    { field: 'HERO_INFO_SUBCLASS', headerName: 'HERO_INFO_SUBCLASS', width: 200 },
-    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL', width: 200 },
-    { field: 'HERO_PROFESSIONS_MINING', headerName: 'HERO_PROFESSIONS_MINING', width: 200 },
-    { field: 'HERO_PROFESSIONS_GARDENING', headerName: 'HERO_PROFESSIONS_GARDENING', width: 200 },
-    { field: 'HERO_PROFESSIONS_FORAGING', headerName: 'HERO_PROFESSIONS_FORAGING', width: 200 },
-    { field: 'HERO_PROFESSIONS_FISHING', headerName: 'HERO_PROFESSIONS_FISHING', width: 200 },
+    { field: 'BLOCK_TIMESTAMP', headerName: 'BLOCK_TIMESTAMP' },
+    { field: 'HERO_ID', headerName: 'HERO_ID' },
+    { field: 'TOTAL_JEWELS', headerName: 'TOTAL_JEWELS' },
+    { field: 'SUMMONING_INFO_MAXSUMMONS', headerName: 'SUMMONING_INFO_MAXSUMMONS' },
+    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT' },
+    { field: 'HERO_INFO_STATGENES', headerName: 'HERO_INFO_STATGENES' },
+    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY' },
+    { field: 'HERO_INFO_GENERATION', headerName: 'HERO_INFO_GENERATION' },
+    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS' },
+    { field: 'HERO_INFO_SUBCLASS', headerName: 'HERO_INFO_SUBCLASS' },
+    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL' },
+    { field: 'HERO_PROFESSIONS_MINING', headerName: 'HERO_PROFESSIONS_MINING' },
+    { field: 'HERO_PROFESSIONS_GARDENING', headerName: 'HERO_PROFESSIONS_GARDENING' },
+    { field: 'HERO_PROFESSIONS_FORAGING', headerName: 'HERO_PROFESSIONS_FORAGING' },
+    { field: 'HERO_PROFESSIONS_FISHING', headerName: 'HERO_PROFESSIONS_FISHING' },
   ];
 
   var dataParams = {}
@@ -235,19 +232,19 @@ function CalcsPage()
   "MEDIAN_JEWEL":2150,"MODE_JEWEL":2150,"TW_AVERAGE":2434.722222222222,"RANGE":1643.75,"SAMPLE_SIZE":6}
   */
   const gridColDef = [
-    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS', width: 100 },
-    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY', width: 80 },
-    { field: 'PROFESSION_MAIN', headerName: 'PROFESSION_MAIN', width: 80 },
-    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT', width: 200 },
-    { field: 'MIN_JEWEL', headerName: 'MIN_JEWEL', width: 200 },
-    { field: 'MAX_JEWEL', headerName: 'MAX_JEWEL', width: 200 },
-    { field: 'AVG_JEWEL', headerName: 'AVG_JEWEL', width: 200 },
-    { field: 'MEDIAN_JEWEL', headerName: 'MEDIAN_JEWEL', width: 200 },
-    { field: 'MODE_JEWEL', headerName: 'MODE_JEWEL', width: 200 },
-    { field: 'TW_AVERAGE', headerName: 'TW_AVERAGE', width: 200 },
-    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL', width: 200 },
-    { field: 'RANGE', headerName: 'RANGE', width: 200 },
-    { field: 'SAMPLE_SIZE', headerName: 'SAMPLE_SIZE', width: 200 },
+    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS' },
+    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY' },
+    { field: 'PROFESSION_MAIN', headerName: 'PROFESSION_MAIN' },
+    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT' },
+    { field: 'MIN_JEWEL', headerName: 'MIN_JEWEL' },
+    { field: 'MAX_JEWEL', headerName: 'MAX_JEWEL' },
+    { field: 'AVG_JEWEL', headerName: 'AVG_JEWEL' },
+    { field: 'MEDIAN_JEWEL', headerName: 'MEDIAN_JEWEL' },
+    { field: 'MODE_JEWEL', headerName: 'MODE_JEWEL' },
+    { field: 'TW_AVERAGE', headerName: 'TW_AVERAGE' },
+    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL' },
+    { field: 'RANGE', headerName: 'RANGE' },
+    { field: 'SAMPLE_SIZE', headerName: 'SAMPLE_SIZE' },
   ];
 
   var dataParams = {}
@@ -347,24 +344,31 @@ function HeroValuationPage()
       <Grid item md={12}>
         <h2>Hero Valuation Page Calculator</h2>
       </Grid>
+      <Grid item md={12}>
       <TextField id="HeroIDTextField" onChange={(v) => {setTextFieldHeroID(v.target.value)}} label="Outlined" variant="outlined" />
       <Button variant="contained" onClick={() => {
         setHeroID(textFieldHeroID)
         console.log(textFieldHeroID);
       }}>Load Hero</Button>
+      </Grid>
+      <Grid item md={12}>
       <h3>Hero selected: {heroID}</h3>
-      <p> id: {dataHero.id} 
-          owner: {dataHero.owner} 
-          mainclass: {dataHero.mainclass}
-          subclass: {dataHero.subclass}
-          rarity: {dataHero.rarity} 
-          generation: {dataHero.generation} 
-          summons: {dataHero.summons} 
-          maxsummons: {dataHero.maxsummons} 
-          level: {dataHero.level} 
-          profession: {dataHero.profession} 
+      <p> 
+          <li>id: {dataHero.id} </li>
+          <li>owner: {dataHero.owner} </li>
+          <li>mainclass: {dataHero.mainclass}</li>
+          <li>subclass: {dataHero.subclass}</li>
+          <li>rarity: {dataHero.rarity} </li>
+          <li>generation: {dataHero.generation} </li>
+          <li>summons: {dataHero.summons} </li>
+          <li>maxsummons: {dataHero.maxsummons} </li>
+          <li>level: {dataHero.level} </li>
+          <li>profession: {dataHero.profession} </li>
        </p>
-      <p>valuation: {dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity][dataHero.maxsummons-dataHero.summons]}</p>
+       </Grid>
+       <Grid item md={12}>
+      valuation: {dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity][dataHero.maxsummons-dataHero.summons]}
+      </Grid>
     </Grid>
   </div>
   );
@@ -384,7 +388,7 @@ function PermanentDrawerLeft() {
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
-            Solana NFT Sales
+          DFK Stuffs
           </Typography>
         </Toolbar>
       </AppBar>
@@ -414,12 +418,12 @@ function PermanentDrawerLeft() {
         </List>
         <Divider />
         <List>
-            <ListItem button key={'HeroSales'} onClick={() => setPage(1)}>
+            {/* <ListItem button key={'HeroSales'} onClick={() => setPage(1)}>
               <ListItemIcon>
                 <Image alt="" src='/meLogo.png' height={24} width={24} />
               </ListItemIcon>
               <ListItemText primary={'HeroSales'} />
-            </ListItem>
+            </ListItem> */}
             <ListItem button key={'CalcsPage'} onClick={() => setPage(2)}>
               <ListItemIcon>
                 <Image alt="" src='/meLogo.png' height={24} width={24} />
