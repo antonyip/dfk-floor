@@ -25,6 +25,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { DateRange } from '@mui/icons-material';
 import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
 import date from 'date-and-time';
 import Paper from '@mui/material/Paper';
 
@@ -39,6 +40,7 @@ import {
   ArcElement,
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { Input } from '@mui/material';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -107,9 +109,9 @@ function AboutPage()
 function Pages(props) {
 
   if(props.pageNumber === 0) {return (<div><AboutPage /></div>);}
-  if(props.pageNumber === 1) {return (<div><MagicEdenPage /></div>);}
-  if(props.pageNumber === 2) {return (<div><SolSeaPage /></div>);}
-  if(props.pageNumber === 3) {return (<div><SolartPage /></div>);}
+  if(props.pageNumber === 1) {return (<div><HeroValuePage /></div>);}
+  if(props.pageNumber === 2) {return (<div><CalcsPage /></div>);}
+  if(props.pageNumber === 3) {return (<div><HeroValuationPage /></div>);}
   return (
     <Typography paragraph>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -152,11 +154,11 @@ function displayNiceTitle(myString)
   return rv.join('');
 }
 
-function MagicEdenPage()
+function HeroValuePage()
 {
   const [data,setData] = useState("")
   React.useEffect(() => {
-    axios.get("/api/getMagicEdenSales").then (response => {
+    axios.get("/api/getLast30DaySales").then (response => {
       setData(response);
     }).catch (error => {
       console.log(error);
@@ -164,545 +166,62 @@ function MagicEdenPage()
   },[])
 
   if (data === "") return (<div><CircularProgress /></div>);
-
-
-  function generateChartOptions(myVar) {
-    return {
-      elements: {
-        bar: {
-          borderWidth: 2,
-        },
-      },
-      responsive: true,
-      scales: {
-        x: {
-          stacked: true,
-        },
-        y: {
-          stacked: true,
-        },
-      },
-      plugins: {
-        legend: {
-          display: false,
-          position: 'right',
-        },
-        title: {
-          display: true,
-          text: myVar,
-        },
-      },
-    };
-  }
-
-  function generatePieOptions(myVar) {
-    return {
-      elements: {
-        bar: {
-          borderWidth: 2,
-        },
-      },
-      responsive: true,
-      plugins: {
-        legend: {
-          display: false,
-          position: 'right',
-        },
-        title: {
-          display: true,
-          text: myVar,
-        },
-      },
-    };
-  }
-
-  // manipulating the data -- start
-
-  var projectDatabase = {}
-  var latestDate = undefined
-  var latestDateMonth = undefined
-  var latestDateMonthCalc = undefined
-
-  
-
-  var uniqueDate = {}
-  var last7DaysSorted_i = [0,0,0,0,0,0,0];
-
-  data.data.forEach( row => {
-    var dateParsed = new Date(row.DAY_DATE)
-
-    if (latestDate === undefined || date.subtract(dateParsed,latestDate).toSeconds > 0)
-    {
-      latestDate = dateParsed;
-    }
-
-    uniqueDate[dateParsed.getTime()] = 1;
-
-
-    if (projectDatabase[row.PROJECT_NAME] === undefined)
-    {
-      projectDatabase[row.PROJECT_NAME] = {}
-    }
-
-    projectDatabase[row.PROJECT_NAME][dateParsed] = row.SUM_SALES_PRICE
-    projectDatabase[row.PROJECT_NAME][dateParsed.getTime()] = row.SUM_SALES_PRICE
-    projectDatabase[row.PROJECT_NAME]['c' + dateParsed] = row.COUNT_NFT_SALES
-    projectDatabase[row.PROJECT_NAME]['c' + dateParsed.getTime()] = row.COUNT_NFT_SALES
-    
-    
-    var dateMonth = dateParsed.getFullYear() + '-' + dateParsed.getMonth().toString().padStart(2,'0')
-    var dateMonthCalc = dateParsed.getFullYear() * 12 + dateParsed.getMonth()
-    
-    if (latestDateMonthCalc === undefined || dateMonthCalc > latestDateMonthCalc)
-    {
-      latestDateMonth = dateMonth;
-      latestDateMonthCalc = dateMonthCalc
-    }
-
-    if( projectDatabase[row.PROJECT_NAME]['ts'] === undefined )
-    {
-      projectDatabase[row.PROJECT_NAME]['ts'] = 0
-      projectDatabase[row.PROJECT_NAME]['tc'] = 0
-    }
-
-    if (projectDatabase[row.PROJECT_NAME][dateMonth] === undefined)
-    {
-      projectDatabase[row.PROJECT_NAME][dateMonth] = 0;
-      projectDatabase[row.PROJECT_NAME]['c' + dateMonth] = 0;
-    }
-    projectDatabase[row.PROJECT_NAME][dateMonth] += row.SUM_SALES_PRICE;
-    projectDatabase[row.PROJECT_NAME]['c' + dateMonth] += row.COUNT_NFT_SALES;
-    projectDatabase[row.PROJECT_NAME]['ts'] += row.SUM_SALES_PRICE;
-    projectDatabase[row.PROJECT_NAME]['tc'] += row.COUNT_NFT_SALES;
-    
-  })
-
-  for (var key in uniqueDate) {
-    var minTime = last7DaysSorted_i[0]
-    var minTimeIndex = 0;
-
-    last7DaysSorted_i.forEach((element,index) =>{
-      if (minTime > element)
-      {
-        minTime = element
-        minTimeIndex = index
-      }
-    })
-    //console.log(key);
-    var ldate = new Date(key / 1000);
-    if (ldate.getTime() > minTime)
-    {
-      last7DaysSorted_i[minTimeIndex] = ldate.getTime()
-    }
-  }
-
-
-
-  //console.log(latestDate);
-  //console.log(last7DaysSorted_i);
-  //console.log(projectDatabase);
-
-  var dailyRows = []
-  var minValues = [0,0,0,0,0,0,0,0,0,0];
-  var projectNames = ["","","","","","","","","","",];
-  
-  for (var element in projectDatabase) {
-    var daily = projectDatabase[element][latestDate] === undefined ? 0 : Math.round(projectDatabase[element][latestDate]*100) / 100;
-    var dailyCount = projectDatabase[element]['c' + latestDate] === undefined ? 0 : Math.round(projectDatabase[element]['c' + latestDate]*100) / 100;
-    var monthlyCount = projectDatabase[element]['c' + latestDateMonth] === undefined ? 0 : projectDatabase[element]['c' + latestDateMonth];
-    var monthly = projectDatabase[element][latestDateMonth] === undefined ? 0 : Math.round(projectDatabase[element][latestDateMonth]*100) / 100
-    var quartlyCount = projectDatabase[element]['tc'] === undefined ? 0 : projectDatabase[element]['tc'];
-    var quartly = projectDatabase[element]['ts'] === undefined ? 0 : Math.round(projectDatabase[element]['ts']*100) / 100
-
-    var currentMin = 99999999
-    var minIndex = -1
-    // get the minimum from the minValues
-    minValues.forEach((element, index, array) => {
-      if ( element < currentMin )
-      {
-        currentMin = element;
-        minIndex = index;
-      }
-    })
-
-    if (projectDatabase[element][latestDate] > currentMin)
-    {
-      if (element != 'others')
-      {
-        minValues[minIndex] = projectDatabase[element][latestDate];
-        projectNames[minIndex] = element;
-      }
-    }
-
-    dailyRows.push({
-      PROJECT_NAME:displayNiceTitle(element),
-      DAILY_SALES:daily,
-      DAILY_COUNT:dailyCount,
-      MONTHLY_SALES:monthly,
-      MONTHLY_COUNT:monthlyCount,
-      QUARTLY_SALES:quartly,
-      QUARTLY_COUNT:quartlyCount,
-    })
-  }
-  
-  //console.log(minValues);
-  //console.log(projectNames);
-
-  //console.log(dailyRows);
-
-  // manipulating the data -- end
-
+  /*{"BLOCK_TIMESTAMP":"2022-02-28 21:20:24.000","HERO_ID":"119592","TOTAL_JEWELS":37,"U_TIME":"2022-02-20 03:14:22.000",
+  "U_HERO":"119592","SUMMONING_INFO_MAXSUMMONS":"5","SUMMONS_LEFT":5,
+  "HERO_INFO_STATGENES":"0000000a631011300022840239c4139ce1288007314e7114210cd1321c262042",
+  "HERO_INFO_RARITY":"0","HERO_INFO_GENERATION":"4","HERO_INFO_CLASS":"6","HERO_INFO_SUBCLASS":"17",
+  "HERO_STATE_LEVEL":"1","HERO_PROFESSIONS_MINING":"10","HERO_PROFESSIONS_GARDENING":"9","HERO_PROFESSIONS_FORAGING":"0",
+  "HERO_PROFESSIONS_FISHING":"0"
+  */
   const gridColDef = [
-    { field: 'PROJECT_NAME', headerName: 'NFT Collection', width: 250 },
-    { field: 'DAILY_SALES', headerName: '24h Sales (SOL)', width: 200 },
-    { field: 'DAILY_COUNT', headerName: '24h Sales (#)', width: 200 },
-    { field: 'MONTHLY_SALES', headerName: '30d Sales (SOL)', width: 200 },
-    { field: 'MONTHLY_COUNT', headerName: '30d Sales (#)', width: 200 },
-    { field: 'QUARTLY_SALES', headerName: '90d Sales (SOL)', width: 200 },
-    { field: 'QUARTLY_COUNT', headerName: '90d Sales (#)', width: 200 },
+    { field: 'BLOCK_TIMESTAMP', headerName: 'BLOCK_TIMESTAMP', width: 100 },
+    { field: 'HERO_ID', headerName: 'HERO_ID', width: 80 },
+    { field: 'TOTAL_JEWELS', headerName: 'TOTAL_JEWELS', width: 80 },
+    { field: 'SUMMONING_INFO_MAXSUMMONS', headerName: 'SUMMONING_INFO_MAXSUMMONS', width: 200 },
+    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT', width: 200 },
+    { field: 'HERO_INFO_STATGENES', headerName: 'HERO_INFO_STATGENES', width: 200 },
+    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY', width: 200 },
+    { field: 'HERO_INFO_GENERATION', headerName: 'HERO_INFO_GENERATION', width: 200 },
+    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS', width: 200 },
+    { field: 'HERO_INFO_SUBCLASS', headerName: 'HERO_INFO_SUBCLASS', width: 200 },
+    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL', width: 200 },
+    { field: 'HERO_PROFESSIONS_MINING', headerName: 'HERO_PROFESSIONS_MINING', width: 200 },
+    { field: 'HERO_PROFESSIONS_GARDENING', headerName: 'HERO_PROFESSIONS_GARDENING', width: 200 },
+    { field: 'HERO_PROFESSIONS_FORAGING', headerName: 'HERO_PROFESSIONS_FORAGING', width: 200 },
+    { field: 'HERO_PROFESSIONS_FISHING', headerName: 'HERO_PROFESSIONS_FISHING', width: 200 },
   ];
 
-  const chartOptions1 = generateChartOptions("Daily Sales");
-  const chartOptions2 = generatePieOptions("Total Volume Exchanged Today");
-  const chartOptions3 = generatePieOptions("90 Day Highest Volume");
-  const chartOptions4 = generateChartOptions("Best Sellers");
-  const chartOptions5 = generatePieOptions("Number of NFTs Traded Over the last 90 days");
-
-  var last7DaysSorted = last7DaysSorted_i.sort()
-  //console.log(last7DaysSorted_i);
-  //console.log(last7DaysSorted);
-  const chartData1 = generateDailyChartData(projectNames, projectDatabase, last7DaysSorted);
-  const chartData2 = generatePieData(projectDatabase,1,latestDate);
-  const chartData3 = generatePieData(projectDatabase,2);
-  const chartData4 = generateChartData(projectDatabase);
-  const chartData5 = generatePieData(projectDatabase,3);
-
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
-
-  return (<div style={{ height: 600, width: '100%' }}>
-            <Grid container spacing={2}>
-              <Grid item md={12}>
-                <Item><h2>MagicEden Marketplace</h2></Item>
-              </Grid>
-              <Grid item md={6}>
-                <Item><Bar options={chartOptions4} data={chartData4} height={null}/></Item>
-              </Grid>
-              <Grid item md={6}>
-                <Item><Bar options={chartOptions1} data={chartData1} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions2} data={chartData2} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions3} data={chartData3} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions5} data={chartData5} height={null}/></Item>
-              </Grid>
-          </Grid>
-          <br></br>
-          <DataGrid autoPageSize components={{ Toolbar: GridToolbar }} rowHeight={25} getRowId={(row) => row.PROJECT_NAME + row.DAILY_SALES} rows={dailyRows} columns={gridColDef}></DataGrid>
-          </div>
-    );
-
-
-  function generateDailyChartData(projectNames, projectDatabase, last7DaysSorted)
-  {
-    var dataa = [[],[],[],[],[],[],[],[],[],[]]
-    var others = []
-    var datees = [];
-    
-    last7DaysSorted.forEach((element, index) => {
-      datees.push(new Date(element*1000).toISOString().substr(0,10));
-      var negativeSum = 0
-      for (let i = 0; i < 10; i++) {
-
-        if (projectNames[i] === "") continue;
-
-        const interestedDate = last7DaysSorted[index]*1000;
-        const projectStats = projectDatabase[projectNames[i]];
-
-        if (projectStats[interestedDate] !== undefined)
-        {
-          dataa[i].push(projectStats[interestedDate]);
-          negativeSum += projectStats[interestedDate]
-        }
-        else
-        {
-          dataa[i].push(0);
-        }
-      }
-
-      var sumAll = 0;
-      for (var key in projectDatabase)
-      {
-        sumAll += isNaN(projectDatabase[key][interestedDate]) ? 0 : projectDatabase[key][interestedDate];
-      }
-      sumAll -= negativeSum
-      others.push(sumAll);
-    })
-
-    //console.log(last7DaysSorted)
-    //console.log(dataa)
-    //console.log(others);
-    return {
-      labels: datees,
-      datasets: [
-        {
-          label: displayNiceTitle(projectNames[0]),
-          data: dataa[0],
-          backgroundColor: colors[0],
-        },
-        {
-          label: displayNiceTitle(projectNames[1]),
-          data: dataa[1],
-          backgroundColor: colors[1],
-        },
-        {
-          label: displayNiceTitle(projectNames[2]),
-          data: dataa[2],
-          backgroundColor: colors[2],
-        },
-        {
-          label: displayNiceTitle(projectNames[3]),
-          data: dataa[3],
-          backgroundColor: colors[3],
-        },
-        {
-          label: displayNiceTitle(projectNames[4]),
-          data: dataa[4],
-          backgroundColor: colors[4],
-        },
-        {
-          label: displayNiceTitle(projectNames[5]),
-          data: dataa[5],
-          backgroundColor: colors[5],
-        },
-        {
-          label: displayNiceTitle(projectNames[6]),
-          data: dataa[6],
-          backgroundColor: colors[6],
-        },
-        {
-          label: displayNiceTitle(projectNames[7]),
-          data: dataa[7],
-          backgroundColor: colors[7],
-        },
-        {
-          label: displayNiceTitle(projectNames[8]),
-          data: dataa[8],
-          backgroundColor: colors[8],
-        },
-        {
-          label: displayNiceTitle(projectNames[9]),
-          data: dataa[9],
-          backgroundColor: colors[9],
-        },
-        {
-          label: displayNiceTitle("Others"),
-          data: others,
-          backgroundColor: colors[10],
-        },
-        
-      ],
-    };
-  }
-
-  function generateChartData(projectDB) {
-
-    var biggest = [0,0,0,0,0,0]
-    var biggestNames = ["","","","","",""]
-    var Sum = 0;
-    for ( var element in projectDB )
+  var dataParams = {}
+  data.data.forEach(element => {
+    if (element.U_TIME !== undefined )
     {
-      var minElement = biggest[0]
-      var minElementIndex = 0
-      biggest.forEach((m,i) => {
-        if (m < minElement)
-        {
-          minElement = m;
-          minElementIndex = i;
-        }
-      })
-
-      if (projectDB[element]['ts'] > minElement)
+      if (dataParams[element.HERO_INFO_CLASS] === undefined)
       {
-        if (element != 'others')
-        {
-          biggest[minElementIndex] = projectDB[element]['ts'];
-          biggestNames[minElementIndex] = displayNiceTitle(element);
-        }
+        dataParams[element.HERO_INFO_CLASS] = {}
       }
-
-      Sum += projectDB[element]['ts'];
-      
     }
+  });
 
-    return {
-      labels: biggestNames,
-      datasets: [
-        {
-          //label: 'Dataset 1',
-          data: biggest,
-          //backgroundColor: '#E68AC5',
-          backgroundColor: colors
-        },
-      ],
-    };
-  }
-
-  function generatePieData(projectDatabase, index, latestDate) {
-
-    var xAxis = [1,2,3,4,5,6,7];
-    var yAxis = [1,2,3,4,5,6,7,8,9,10];
-
-    if (index === 1)
-    {
-      //Total Volume Exchanged Today
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += isNaN(projectDatabase[element][latestDate]) ? 0 : projectDatabase[element][latestDate]
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element][latestDate] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element][latestDate];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e
-      })
-      //console.log(sum);
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    if (index === 2)
-    {
-      // 90 Day Volume
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += projectDatabase[element]['ts']
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element]['ts'] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element]['ts'];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e;
-      })
-
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    if (index === 3)
-    {
-      // Number of NFTs Traded
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += projectDatabase[element]['tc']
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element]['tc'] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element]['tc'];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e;
-      })
-
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    return {
-      labels: xAxis,
-      datasets: [
-        {
-          label: 'Dataset 1',
-          data: yAxis,
-          backgroundColor: colors,
-        },
-      ],
-    };
-  }
+  return (
+  <div style={{ height: 600, width: '100%' }}>
+    <Grid container spacing={2}>
+      <Grid item md={12}>
+        <h2>Hero Value Calculator</h2>
+      </Grid>
+    </Grid>
+    <br></br>
+    <DataGrid autoPageSize components={{ Toolbar: GridToolbar }} rowHeight={25} getRowId={(row) => row.BLOCK_TIMESTAMP} rows={data.data} columns={gridColDef}></DataGrid>
+  </div>
+  );
 }
 
-function SolSeaPage()
+
+
+function CalcsPage()
 {
   const [data,setData] = useState("")
   React.useEffect(() => {
-    axios.get("/api/getSolSeaSales").then (response => {
+    axios.get("/api/getFloors").then (response => {
       setData(response);
     }).catch (error => {
       console.log(error);
@@ -710,1086 +229,147 @@ function SolSeaPage()
   },[])
 
   if (data === "") return (<div><CircularProgress /></div>);
-
-
-  function generateChartOptions(myVar) {
-    return {
-      elements: {
-        bar: {
-          borderWidth: 2,
-        },
-      },
-      responsive: true,
-      scales: {
-        x: {
-          stacked: true,
-        },
-        y: {
-          stacked: true,
-        },
-      },
-      plugins: {
-        legend: {
-          display: false,
-          position: 'right',
-        },
-        title: {
-          display: true,
-          text: myVar,
-        },
-      },
-    };
-  }
-
-  function generatePieOptions(myVar) {
-    return {
-      elements: {
-        bar: {
-          borderWidth: 2,
-        },
-      },
-      responsive: true,
-      plugins: {
-        legend: {
-          display: false,
-          position: 'right',
-        },
-        title: {
-          display: true,
-          text: myVar,
-        },
-      },
-    };
-  }
-
-  // manipulating the data -- start
-
-  var projectDatabase = {}
-  var latestDate = undefined
-  var latestDateMonth = undefined
-  var latestDateMonthCalc = undefined
-
-  
-
-  var uniqueDate = {}
-  var last7DaysSorted_i = [0,0,0,0,0,0,0];
-
-  data.data.forEach( row => {
-    var dateParsed = new Date(row.DAY_DATE)
-
-    if (latestDate === undefined || date.subtract(dateParsed,latestDate).toSeconds > 0)
-    {
-      latestDate = dateParsed;
-    }
-
-    uniqueDate[dateParsed.getTime()] = 1;
-
-
-    if (projectDatabase[row.PROJECT_NAME] === undefined)
-    {
-      projectDatabase[row.PROJECT_NAME] = {}
-    }
-
-    projectDatabase[row.PROJECT_NAME][dateParsed] = row.SUM_SALES_PRICE
-    projectDatabase[row.PROJECT_NAME][dateParsed.getTime()] = row.SUM_SALES_PRICE
-    projectDatabase[row.PROJECT_NAME]['c' + dateParsed] = row.COUNT_NFT_SALES
-    projectDatabase[row.PROJECT_NAME]['c' + dateParsed.getTime()] = row.COUNT_NFT_SALES
-    
-    
-    var dateMonth = dateParsed.getFullYear() + '-' + dateParsed.getMonth().toString().padStart(2,'0')
-    var dateMonthCalc = dateParsed.getFullYear() * 12 + dateParsed.getMonth()
-    
-    if (latestDateMonthCalc === undefined || dateMonthCalc > latestDateMonthCalc)
-    {
-      latestDateMonth = dateMonth;
-      latestDateMonthCalc = dateMonthCalc
-    }
-
-    if( projectDatabase[row.PROJECT_NAME]['ts'] === undefined )
-    {
-      projectDatabase[row.PROJECT_NAME]['ts'] = 0
-      projectDatabase[row.PROJECT_NAME]['tc'] = 0
-    }
-
-    if (projectDatabase[row.PROJECT_NAME][dateMonth] === undefined)
-    {
-      projectDatabase[row.PROJECT_NAME][dateMonth] = 0;
-      projectDatabase[row.PROJECT_NAME]['c' + dateMonth] = 0;
-    }
-    projectDatabase[row.PROJECT_NAME][dateMonth] += row.SUM_SALES_PRICE;
-    projectDatabase[row.PROJECT_NAME]['c' + dateMonth] += row.COUNT_NFT_SALES;
-    projectDatabase[row.PROJECT_NAME]['ts'] += row.SUM_SALES_PRICE;
-    projectDatabase[row.PROJECT_NAME]['tc'] += row.COUNT_NFT_SALES;
-    
-  })
-
-  
-
-  for (var key in uniqueDate) {
-    var minTime = last7DaysSorted_i[0]
-    var minTimeIndex = 0;
-
-    last7DaysSorted_i.forEach((element,index) =>{
-      if (minTime > element)
-      {
-        minTime = element
-        minTimeIndex = index
-      }
-    })
-    //console.log(key);
-    var ldate = new Date(key / 1000);
-    if (ldate.getTime() > minTime)
-    {
-      last7DaysSorted_i[minTimeIndex] = ldate.getTime()
-    }
-  }
-
-
-
-  //console.log(latestDate);
-  //console.log(uniqueDate);
-  //console.log(projectDatabase);
-
-  var dailyRows = []
-  var minValues = [0,0,0,0,0,0,0,0,0,0];
-  var projectNames = ["","","","","","","","","","",];
-  
-  for (var element in projectDatabase) {
-    var daily = projectDatabase[element][latestDate] === undefined ? 0 : Math.round(projectDatabase[element][latestDate]*100) / 100;
-    var dailyCount = projectDatabase[element]['c' + latestDate] === undefined ? 0 : Math.round(projectDatabase[element]['c' + latestDate]*100) / 100;
-    var monthlyCount = projectDatabase[element]['c' + latestDateMonth] === undefined ? 0 : projectDatabase[element]['c' + latestDateMonth];
-    var monthly = projectDatabase[element][latestDateMonth] === undefined ? 0 : Math.round(projectDatabase[element][latestDateMonth]*100) / 100
-    var quartlyCount = projectDatabase[element]['tc'] === undefined ? 0 : projectDatabase[element]['tc'];
-    var quartly = projectDatabase[element]['ts'] === undefined ? 0 : Math.round(projectDatabase[element]['ts']*100) / 100
-
-    var currentMin = 99999999
-    var minIndex = -1
-    // get the minimum from the minValues
-    minValues.forEach((element, index, array) => {
-      if ( element < currentMin )
-      {
-        currentMin = element;
-        minIndex = index;
-      }
-    })
-
-    if (projectDatabase[element][latestDate] > currentMin)
-    {
-      if (element != 'others')
-      {
-        minValues[minIndex] = projectDatabase[element][latestDate];
-        projectNames[minIndex] = element;
-      }
-    }
-
-    dailyRows.push({
-      PROJECT_NAME:displayNiceTitle(element),
-      DAILY_SALES:daily,
-      DAILY_COUNT:dailyCount,
-      MONTHLY_SALES:monthly,
-      MONTHLY_COUNT:monthlyCount,
-      QUARTLY_SALES:quartly,
-      QUARTLY_COUNT:quartlyCount,
-    })
-  }
-  
-  //console.log(minValues);
-  //console.log(projectNames);
-
-  //console.log(dailyRows);
-
-  // manipulating the data -- end
-
+  /*
+  {"HERO_INFO_CLASS":"28","HERO_INFO_RARITY":"0","PROFESSION_MAIN":"fishing",
+  "SUMMONS_LEFT":1,"MIN_JEWEL":1556.25,"MAX_JEWEL":3200,"AVG_JEWEL":2276.041666666667,
+  "MEDIAN_JEWEL":2150,"MODE_JEWEL":2150,"TW_AVERAGE":2434.722222222222,"RANGE":1643.75,"SAMPLE_SIZE":6}
+  */
   const gridColDef = [
-    { field: 'PROJECT_NAME', headerName: 'NFT Collection', width: 250 },
-    { field: 'DAILY_SALES', headerName: '24h Sales (SOL)', width: 200 },
-    { field: 'DAILY_COUNT', headerName: '24h Sales (#)', width: 200 },
-    { field: 'MONTHLY_SALES', headerName: '30d Sales (SOL)', width: 200 },
-    { field: 'MONTHLY_COUNT', headerName: '30d Sales (#)', width: 200 },
-    { field: 'QUARTLY_SALES', headerName: '90d Sales (SOL)', width: 200 },
-    { field: 'QUARTLY_COUNT', headerName: '90d Sales (#)', width: 200 },
+    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS', width: 100 },
+    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY', width: 80 },
+    { field: 'PROFESSION_MAIN', headerName: 'PROFESSION_MAIN', width: 80 },
+    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT', width: 200 },
+    { field: 'MIN_JEWEL', headerName: 'MIN_JEWEL', width: 200 },
+    { field: 'MAX_JEWEL', headerName: 'MAX_JEWEL', width: 200 },
+    { field: 'AVG_JEWEL', headerName: 'AVG_JEWEL', width: 200 },
+    { field: 'MEDIAN_JEWEL', headerName: 'MEDIAN_JEWEL', width: 200 },
+    { field: 'MODE_JEWEL', headerName: 'MODE_JEWEL', width: 200 },
+    { field: 'TW_AVERAGE', headerName: 'TW_AVERAGE', width: 200 },
+    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL', width: 200 },
+    { field: 'RANGE', headerName: 'RANGE', width: 200 },
+    { field: 'SAMPLE_SIZE', headerName: 'SAMPLE_SIZE', width: 200 },
   ];
 
-  const chartOptions1 = generateChartOptions("Daily Sales");
-  const chartOptions2 = generatePieOptions("Total Volume Exchanged Today");
-  const chartOptions3 = generatePieOptions("90 Day Highest Volume");
-  const chartOptions4 = generateChartOptions("Best Sellers");
-  const chartOptions5 = generatePieOptions("Number of NFTs Traded Over the last 90 days");
-
-  var last7DaysSorted = last7DaysSorted_i.sort()
-  //console.log(last7DaysSorted_i);
-  //console.log(last7DaysSorted);
-  const chartData1 = generateDailyChartData(projectNames, projectDatabase, last7DaysSorted);
-  const chartData2 = generatePieData(projectDatabase,1,latestDate);
-  const chartData3 = generatePieData(projectDatabase,2);
-  const chartData4 = generateChartData(projectDatabase);
-  const chartData5 = generatePieData(projectDatabase,3);
-
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
-
-  return (<div style={{ height: 600, width: '100%' }}>
-            <Grid container spacing={2}>
-            <Grid item md={12}>
-                <Item><h2>SolSea Marketplace</h2></Item>
-              </Grid>
-              <Grid item md={6}>
-                <Item><Bar options={chartOptions4} data={chartData4} height={null}/></Item>
-              </Grid>
-              <Grid item md={6}>
-                <Item><Bar options={chartOptions1} data={chartData1} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions2} data={chartData2} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions3} data={chartData3} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions5} data={chartData5} height={null}/></Item>
-              </Grid>
-          </Grid>
-          <br></br>
-          <DataGrid autoPageSize components={{ Toolbar: GridToolbar }} rowHeight={25} getRowId={(row) => row.PROJECT_NAME + row.DAILY_SALES} rows={dailyRows} columns={gridColDef}></DataGrid>
-          </div>
-    );
-
-
-    function generateDailyChartData(projectNames, projectDatabase, last7DaysSorted)
+  var dataParams = {}
+  data.data.forEach(element => {
+    if (element.U_TIME !== undefined )
     {
-      var dataa = [[],[],[],[],[],[],[],[],[],[]]
-      var others = []
-      var datees = [];
-      
-      last7DaysSorted.forEach((element, index) => {
-        datees.push(new Date(element*1000).toISOString().substr(0,10));
-        var negativeSum = 0
-        for (let i = 0; i < 10; i++) {
-  
-          if (projectNames[i] === "") continue;
-  
-          const interestedDate = last7DaysSorted[index]*1000;
-          const projectStats = projectDatabase[projectNames[i]];
-  
-          if (projectStats[interestedDate] !== undefined)
-          {
-            dataa[i].push(projectStats[interestedDate]);
-            negativeSum += projectStats[interestedDate]
-          }
-          else
-          {
-            dataa[i].push(0);
-          }
-        }
-  
-        var sumAll = 0;
-        for (var key in projectDatabase)
-        {
-          sumAll += isNaN(projectDatabase[key][interestedDate]) ? 0 : projectDatabase[key][interestedDate];
-        }
-        sumAll -= negativeSum
-        others.push(sumAll);
-      })
-  
-      //console.log(last7DaysSorted)
-      //console.log(dataa)
-      //console.log(others);
-      return {
-        labels: datees,
-        datasets: [
-          {
-            label: displayNiceTitle(projectNames[0]),
-            data: dataa[0],
-            backgroundColor: colors[0],
-          },
-          {
-            label: displayNiceTitle(projectNames[1]),
-            data: dataa[1],
-            backgroundColor: colors[1],
-          },
-          {
-            label: displayNiceTitle(projectNames[2]),
-            data: dataa[2],
-            backgroundColor: colors[2],
-          },
-          {
-            label: displayNiceTitle(projectNames[3]),
-            data: dataa[3],
-            backgroundColor: colors[3],
-          },
-          {
-            label: displayNiceTitle(projectNames[4]),
-            data: dataa[4],
-            backgroundColor: colors[4],
-          },
-          {
-            label: displayNiceTitle(projectNames[5]),
-            data: dataa[5],
-            backgroundColor: colors[5],
-          },
-          {
-            label: displayNiceTitle(projectNames[6]),
-            data: dataa[6],
-            backgroundColor: colors[6],
-          },
-          {
-            label: displayNiceTitle(projectNames[7]),
-            data: dataa[7],
-            backgroundColor: colors[7],
-          },
-          {
-            label: displayNiceTitle(projectNames[8]),
-            data: dataa[8],
-            backgroundColor: colors[8],
-          },
-          {
-            label: displayNiceTitle(projectNames[9]),
-            data: dataa[9],
-            backgroundColor: colors[9],
-          },
-          {
-            label: displayNiceTitle("Others"),
-            data: others,
-            backgroundColor: colors[10],
-          },
-          
-        ],
-      };
-    }
-
-  function generateChartData(projectDB) {
-
-    var biggest = [0,0,0,0,0,0]
-    var biggestNames = ["","","","","",""]
-    var Sum = 0;
-    for ( var element in projectDB )
-    {
-      var minElement = biggest[0]
-      var minElementIndex = 0
-      biggest.forEach((m,i) => {
-        if (m < minElement)
-        {
-          minElement = m;
-          minElementIndex = i;
-        }
-      })
-
-      if (projectDB[element]['ts'] > minElement)
+      if (dataParams[element.HERO_INFO_CLASS] === undefined)
       {
-        if (element != 'others')
-        {
-          biggest[minElementIndex] = projectDB[element]['ts'];
-          biggestNames[minElementIndex] = displayNiceTitle(element);
-        }
+        dataParams[element.HERO_INFO_CLASS] = {}
       }
-
-      Sum += projectDB[element]['ts'];
-      
     }
+  });
 
-    return {
-      labels: biggestNames,
-      datasets: [
-        {
-          //label: 'Dataset 1',
-          data: biggest,
-          backgroundColor: colors,
-        },
-      ],
-    };
-  }
-
-  function generatePieData(projectDatabase, index, latestDate) {
-
-    var xAxis = [1,2,3,4,5,6,7];
-    var yAxis = [1,2,3,4,5,6,7,8,9,10];
-
-    if (index === 1)
-    {
-      //Total Volume Exchanged Today
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += isNaN(projectDatabase[element][latestDate]) ? 0 : projectDatabase[element][latestDate]
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element][latestDate] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element][latestDate];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e
-      })
-      //console.log(sum);
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    if (index === 2)
-    {
-      // 90 Day Volume
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += projectDatabase[element]['ts']
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element]['ts'] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element]['ts'];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e;
-      })
-
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    if (index === 3)
-    {
-      // Number of NFTs Traded
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += projectDatabase[element]['tc']
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element]['tc'] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element]['tc'];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e;
-      })
-
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    return {
-      labels: xAxis,
-      datasets: [
-        {
-          label: 'Dataset 1',
-          data: yAxis,
-          backgroundColor: colors,
-        },
-      ],
-    };
-  }
+  var i = 0;
+  return (
+  <div style={{ height: 600, width: '100%' }}>
+    <Grid container spacing={2}>
+      <Grid item md={12}>
+        <h2>Hero Value Calculator</h2>
+      </Grid>
+    </Grid>
+    <br></br>
+    <DataGrid autoPageSize components={{ Toolbar: GridToolbar }} rowHeight={25} getRowId={(row) => ++i } rows={data.data} columns={gridColDef}></DataGrid>
+  </div>
+  );
 }
 
-function SolartPage()
+function HeroValuationPage()
 {
   const [data,setData] = useState("")
+  const [dataHero,setDataHero] = useState("")
+  const [heroID, setHeroID] = useState("77012")
+  const [textFieldHeroID, setTextFieldHeroID] = useState("77012")
   React.useEffect(() => {
-    axios.get("/api/getSolanartSales").then (response => {
+    axios.get("/api/getFloors").then (response => {
       setData(response);
+    }).catch (error => {
+      console.log(error);
+    })
+
+    axios.get("/api/getHeroByID?id=" + heroID).then (response => {
+      //console.log("dataid", response.data[0])
+      setDataHero(response.data[0]);
     }).catch (error => {
       console.log(error);
     })
   },[])
 
+  React.useEffect(() => {
+
+    axios.get("/api/getHeroByID?id=" + heroID).then (response => {
+      setDataHero(response.data[0]);
+    }).catch (error => {
+      console.log(error);
+    })
+
+  },[heroID])
+
+
+
   if (data === "") return (<div><CircularProgress /></div>);
+  /*
+  {"HERO_INFO_CLASS":"28","HERO_INFO_RARITY":"0","PROFESSION_MAIN":"fishing",
+  "SUMMONS_LEFT":1,"MIN_JEWEL":1556.25,"MAX_JEWEL":3200,"AVG_JEWEL":2276.041666666667,
+  "MEDIAN_JEWEL":2150,"MODE_JEWEL":2150,"TW_AVERAGE":2434.722222222222,"RANGE":1643.75,"SAMPLE_SIZE":6}
+  */
 
-
-  function generateChartOptions(myVar) {
-    return {
-      elements: {
-        bar: {
-          borderWidth: 2,
-        },
-      },
-      responsive: true,
-      scales: {
-        x: {
-          stacked: true,
-        },
-        y: {
-          stacked: true,
-        },
-      },
-      plugins: {
-        legend: {
-          display: false,
-          position: 'right',
-        },
-        title: {
-          display: true,
-          text: myVar,
-        },
-      },
-    };
+  var dataParams = {
+    "0":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "1":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "2":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "3":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "4":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "5":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "6":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "7":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "16":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "17":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "18":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "19":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "24":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "25":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
+    "28":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}}
   }
+  data.data.forEach(element => {
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY][element.SUMMONS_LEFT] = element.TW_AVERAGE
+  });
 
-  function generatePieOptions(myVar) {
-    return {
-      elements: {
-        bar: {
-          borderWidth: 2,
-        },
-      },
-      responsive: true,
-      plugins: {
-        legend: {
-          display: false,
-          position: 'right',
-        },
-        title: {
-          display: true,
-          text: myVar,
-        },
-      },
-    };
-  }
-
-  // manipulating the data -- start
-
-  var projectDatabase = {}
-  var latestDate = undefined
-  var latestDateMonth = undefined
-  var latestDateMonthCalc = undefined
-
-  
-
-  var uniqueDate = {}
-  var last7DaysSorted_i = [0,0,0,0,0,0,0];
-
-  data.data.forEach( row => {
-    var dateParsed = new Date(row.DAY_DATE)
-
-    if (latestDate === undefined || date.subtract(dateParsed,latestDate).toSeconds > 0)
-    {
-      latestDate = dateParsed;
-    }
-
-    uniqueDate[dateParsed.getTime()] = 1;
-
-
-    if (projectDatabase[row.PROJECT_NAME] === undefined)
-    {
-      projectDatabase[row.PROJECT_NAME] = {}
-    }
-
-    projectDatabase[row.PROJECT_NAME][dateParsed] = row.SUM_SALES_PRICE
-    projectDatabase[row.PROJECT_NAME][dateParsed.getTime()] = row.SUM_SALES_PRICE
-    projectDatabase[row.PROJECT_NAME]['c' + dateParsed] = row.COUNT_NFT_SALES
-    projectDatabase[row.PROJECT_NAME]['c' + dateParsed.getTime()] = row.COUNT_NFT_SALES
-    
-    
-    var dateMonth = dateParsed.getFullYear() + '-' + dateParsed.getMonth().toString().padStart(2,'0')
-    var dateMonthCalc = dateParsed.getFullYear() * 12 + dateParsed.getMonth()
-    
-    if (latestDateMonthCalc === undefined || dateMonthCalc > latestDateMonthCalc)
-    {
-      latestDateMonth = dateMonth;
-      latestDateMonthCalc = dateMonthCalc
-    }
-
-    if( projectDatabase[row.PROJECT_NAME]['ts'] === undefined )
-    {
-      projectDatabase[row.PROJECT_NAME]['ts'] = 0
-      projectDatabase[row.PROJECT_NAME]['tc'] = 0
-    }
-
-    if (projectDatabase[row.PROJECT_NAME][dateMonth] === undefined)
-    {
-      projectDatabase[row.PROJECT_NAME][dateMonth] = 0;
-      projectDatabase[row.PROJECT_NAME]['c' + dateMonth] = 0;
-    }
-    projectDatabase[row.PROJECT_NAME][dateMonth] += row.SUM_SALES_PRICE;
-    projectDatabase[row.PROJECT_NAME]['c' + dateMonth] += row.COUNT_NFT_SALES;
-    projectDatabase[row.PROJECT_NAME]['ts'] += row.SUM_SALES_PRICE;
-    projectDatabase[row.PROJECT_NAME]['tc'] += row.COUNT_NFT_SALES;
-    
-  })
-
-  
-
-  for (var key in uniqueDate) {
-    var minTime = last7DaysSorted_i[0]
-    var minTimeIndex = 0;
-
-    last7DaysSorted_i.forEach((element,index) =>{
-      if (minTime > element)
-      {
-        minTime = element
-        minTimeIndex = index
-      }
-    })
-    //console.log(key);
-    var ldate = new Date(key / 1000);
-    if (ldate.getTime() > minTime)
-    {
-      last7DaysSorted_i[minTimeIndex] = ldate.getTime()
-    }
-  }
-
-
-
-  //console.log(latestDate);
-  //console.log(projectDatabase);
-
-  var dailyRows = []
-  var minValues = [0,0,0,0,0,0,0,0,0,0];
-  var projectNames = ["","","","","","","","","","",];
-  
-  for (var element in projectDatabase) {
-    var daily = projectDatabase[element][latestDate] === undefined ? 0 : Math.round(projectDatabase[element][latestDate]*100) / 100;
-    var dailyCount = projectDatabase[element]['c' + latestDate] === undefined ? 0 : Math.round(projectDatabase[element]['c' + latestDate]*100) / 100;
-    var monthlyCount = projectDatabase[element]['c' + latestDateMonth] === undefined ? 0 : projectDatabase[element]['c' + latestDateMonth];
-    var monthly = projectDatabase[element][latestDateMonth] === undefined ? 0 : Math.round(projectDatabase[element][latestDateMonth]*100) / 100
-    var quartlyCount = projectDatabase[element]['tc'] === undefined ? 0 : projectDatabase[element]['tc'];
-    var quartly = projectDatabase[element]['ts'] === undefined ? 0 : Math.round(projectDatabase[element]['ts']*100) / 100
-
-    var currentMin = 99999999
-    var minIndex = -1
-    // get the minimum from the minValues
-    minValues.forEach((element, index, array) => {
-      if ( element < currentMin )
-      {
-        currentMin = element;
-        minIndex = index;
-      }
-    })
-
-    if (projectDatabase[element][latestDate] > currentMin)
-    {
-      if (element != 'others')
-      {
-        minValues[minIndex] = projectDatabase[element][latestDate];
-        projectNames[minIndex] = element;
-      }
-    }
-
-    dailyRows.push({
-      PROJECT_NAME:displayNiceTitle(element),
-      DAILY_SALES:daily,
-      DAILY_COUNT:dailyCount,
-      MONTHLY_SALES:monthly,
-      MONTHLY_COUNT:monthlyCount,
-      QUARTLY_SALES:quartly,
-      QUARTLY_COUNT:quartlyCount,
-    })
-  }
-  
-  //console.log(minValues);
-  //console.log(projectNames);
-
-  //console.log(dailyRows);
-
-  // manipulating the data -- end
-
-  const gridColDef = [
-    { field: 'PROJECT_NAME', headerName: 'NFT Collection', width: 250 },
-    { field: 'DAILY_SALES', headerName: '24h Sales (SOL)', width: 200 },
-    { field: 'DAILY_COUNT', headerName: '24h Sales (#)', width: 200 },
-    { field: 'MONTHLY_SALES', headerName: '30d Sales (SOL)', width: 200 },
-    { field: 'MONTHLY_COUNT', headerName: '30d Sales (#)', width: 200 },
-    { field: 'QUARTLY_SALES', headerName: '90d Sales (SOL)', width: 200 },
-    { field: 'QUARTLY_COUNT', headerName: '90d Sales (#)', width: 200 },
-  ];
-
-  const chartOptions1 = generateChartOptions("Daily Sales");
-  const chartOptions2 = generatePieOptions("Total Volume Exchanged Today");
-  const chartOptions3 = generatePieOptions("90 Day Highest Volume");
-  const chartOptions4 = generateChartOptions("Best Sellers");
-  const chartOptions5 = generatePieOptions("Number of NFTs Traded Over the last 90 days");
-
-  var last7DaysSorted = last7DaysSorted_i.sort()
-  //console.log(last7DaysSorted_i);
-  //console.log(last7DaysSorted);
-  const chartData1 = generateDailyChartData(projectNames, projectDatabase, last7DaysSorted);
-  const chartData2 = generatePieData(projectDatabase,1,latestDate);
-  const chartData3 = generatePieData(projectDatabase,2);
-  const chartData4 = generateChartData(projectDatabase);
-  const chartData5 = generatePieData(projectDatabase,3);
-
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
-
-  return (<div style={{ height: 600, width: '100%' }}>
-            <Grid container spacing={2}>
-            <Grid item md={12}>
-                <Item><h2>Solanart Marketplace</h2></Item>
-              </Grid>
-              <Grid item md={6}>
-                <Item><Bar options={chartOptions4} data={chartData4} height={null}/></Item>
-              </Grid>
-              <Grid item md={6}>
-                <Item><Bar options={chartOptions1} data={chartData1} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions2} data={chartData2} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions3} data={chartData3} height={null}/></Item>
-              </Grid>
-              <Grid item md={4}>
-                <Item><Doughnut options={chartOptions5} data={chartData5} height={null}/></Item>
-              </Grid>
-          </Grid>
-          <br></br>
-          <DataGrid autoPageSize components={{ Toolbar: GridToolbar }} rowHeight={25} getRowId={(row) => row.PROJECT_NAME + row.DAILY_SALES} rows={dailyRows} columns={gridColDef}></DataGrid>
-          </div>
-    );
-
-
-    function generateDailyChartData(projectNames, projectDatabase, last7DaysSorted)
-  {
-    var dataa = [[],[],[],[],[],[],[],[],[],[]]
-    var others = []
-    var datees = [];
-    
-    last7DaysSorted.forEach((element, index) => {
-      datees.push(new Date(element*1000).toISOString().substr(0,10));
-      var negativeSum = 0
-      for (let i = 0; i < 10; i++) {
-
-        if (projectNames[i] === "") continue;
-
-        const interestedDate = last7DaysSorted[index]*1000;
-        const projectStats = projectDatabase[projectNames[i]];
-
-        if (projectStats[interestedDate] !== undefined)
-        {
-          dataa[i].push(projectStats[interestedDate]);
-          negativeSum += projectStats[interestedDate]
-        }
-        else
-        {
-          dataa[i].push(0);
-        }
-      }
-
-      var sumAll = 0;
-      for (var key in projectDatabase)
-      {
-        sumAll += isNaN(projectDatabase[key][interestedDate]) ? 0 : projectDatabase[key][interestedDate];
-      }
-      sumAll -= negativeSum
-      others.push(sumAll);
-    })
-
-    //console.log(last7DaysSorted)
-    //console.log(dataa)
-    //console.log(others);
-    return {
-      labels: datees,
-      datasets: [
-        {
-          label: displayNiceTitle(projectNames[0]),
-          data: dataa[0],
-          backgroundColor: colors[0],
-        },
-        {
-          label: displayNiceTitle(projectNames[1]),
-          data: dataa[1],
-          backgroundColor: colors[1],
-        },
-        {
-          label: displayNiceTitle(projectNames[2]),
-          data: dataa[2],
-          backgroundColor: colors[2],
-        },
-        {
-          label: displayNiceTitle(projectNames[3]),
-          data: dataa[3],
-          backgroundColor: colors[3],
-        },
-        {
-          label: displayNiceTitle(projectNames[4]),
-          data: dataa[4],
-          backgroundColor: colors[4],
-        },
-        {
-          label: displayNiceTitle(projectNames[5]),
-          data: dataa[5],
-          backgroundColor: colors[5],
-        },
-        {
-          label: displayNiceTitle(projectNames[6]),
-          data: dataa[6],
-          backgroundColor: colors[6],
-        },
-        {
-          label: displayNiceTitle(projectNames[7]),
-          data: dataa[7],
-          backgroundColor: colors[7],
-        },
-        {
-          label: displayNiceTitle(projectNames[8]),
-          data: dataa[8],
-          backgroundColor: colors[8],
-        },
-        {
-          label: displayNiceTitle(projectNames[9]),
-          data: dataa[9],
-          backgroundColor: colors[9],
-        },
-        {
-          label: displayNiceTitle("Others"),
-          data: others,
-          backgroundColor: colors[10],
-        },
-        
-      ],
-    };
-  }
-
-  function generateChartData(projectDB) {
-
-    var biggest = [0,0,0,0,0,0]
-    var biggestNames = ["","","","","",""]
-    var Sum = 0;
-    for ( var element in projectDB )
-    {
-      var minElement = biggest[0]
-      var minElementIndex = 0
-      biggest.forEach((m,i) => {
-        if (m < minElement)
-        {
-          minElement = m;
-          minElementIndex = i;
-        }
-      })
-
-      if (projectDB[element]['ts'] > minElement)
-      {
-        if (element != 'others')
-        {
-          biggest[minElementIndex] = projectDB[element]['ts'];
-          biggestNames[minElementIndex] = displayNiceTitle(element);
-        }
-      }
-
-      Sum += projectDB[element]['ts'];
-      
-    }
-
-    return {
-      labels: biggestNames,
-      datasets: [
-        {
-          //label: 'Dataset 1',
-          data: biggest,
-          backgroundColor: colors,
-        },
-      ],
-    };
-  }
-
-  function generatePieData(projectDatabase, index, latestDate) {
-
-    var xAxis = [1,2,3,4,5,6,7];
-    var yAxis = [1,2,3,4,5,6,7,8,9,10];
-
-    if (index === 1)
-    {
-      //Total Volume Exchanged Today
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += isNaN(projectDatabase[element][latestDate]) ? 0 : projectDatabase[element][latestDate]
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element][latestDate] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element][latestDate];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e
-      })
-      //console.log(sum);
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    if (index === 2)
-    {
-      // 90 Day Volume
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += projectDatabase[element]['ts']
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element]['ts'] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element]['ts'];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e;
-      })
-
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    if (index === 3)
-    {
-      // Number of NFTs Traded
-      var limit = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
-      var limitNames = ["","","","","","","","","","","","","","","","","","","","",]
-      var sum = 0;
-      for (element in projectDatabase)
-      {
-        sum += projectDatabase[element]['tc']
-
-        var minLimit = limit[0];
-        var minLimitIndex = 0;
-        limit.forEach((e,i) => {
-          if (e < minLimit)
-          {
-            minLimit = e;
-            minLimitIndex = i;
-          }
-        })
-
-        if (projectDatabase[element]['tc'] > minLimit)
-        {
-          if (element != 'others')
-          {
-            limit[minLimitIndex] = projectDatabase[element]['tc'];
-            limitNames[minLimitIndex] = displayNiceTitle(element);
-          }
-        }
-      }
-
-      limit.forEach(e => {
-        sum -= e;
-      })
-
-      limit.push(sum)
-      limitNames.push("Others")
-
-      xAxis = limitNames;
-      yAxis = limit;
-    }
-
-    return {
-      labels: xAxis,
-      datasets: [
-        {
-          label: 'Dataset 1',
-          data: yAxis,
-          backgroundColor: colors,
-        },
-      ],
-    };
-  }
+  //console.log(dataParams);
+/*
+[{"id":"77012","numberid":"77012","owner":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","creator":null,"statgenes":"3722263269009836606871127504078018274272028221842442974888100582526990","visualgenes":"57102911489886451134320217114532560776123841439875753507939014772004069","rarity":0,"shiny":false,"generation":4,"firstname":876,"lastname":258,"shinystyle":11,"mainclass":"1","subclass":"7","summonedtime":"1640109739","nextsummontime":"1640196139","summonerid":"75402","assistantid":"73163","summons":0,"maxsummons":4,"staminafullat":"1647466706","hpfullat":"0","mpfullat":"0","level":6,"xp":"1715","currentquest":"0x0000000000000000000000000000000000000000","sp":0,"status":"0","strength":18,"intelligence":7,"wisdom":9,"luck":9,"agility":9,"vitality":21,"endurance":19,"dexterity":11,"hp":337,"mp":56,"stamina":28,"strengthgrowthp":7000,"intelligencegrowthp":2000,"wisdomgrowthp":2500,"luckgrowthp":3500,"agilitygrowthp":4700,"vitalitygrowthp":7500,"endurancegrowthp":7500,"dexteritygrowthp":5500,"strengthgrowths":1750,"intelligencegrowths":500,"wisdomgrowths":500,"luckgrowths":1375,"agilitygrowths":1650,"vitalitygrowths":1500,"endurancegrowths":1375,"dexteritygrowths":1750,"hpsmgrowth":1500,"hprggrowth":3500,"hplggrowth":5000,"mpsmgrowth":4000,"mprggrowth":4000,"mplggrowth":2000,"mining":56,"gardening":0,"foraging":0,"fishing":147,"profession":"fishing","passive1":"Basic8","passive2":"Basic4","active1":"Basic5","active2":"Basic5","statboost1":"AGI","statboost2":"AGI","statsunknown1":"18","element":"dark","statsunknown2":"0","gender":"male","headappendage":"5","backappendage":"2","background":"plains","hairstyle":"1","haircolor":"66489e","visualunknown1":"7","eyecolor":"896693","skincolor":"e6a861","appendagecolor":"c5bfa7","backappendagecolor":"a88b47","visualunknown2":"5","assistingauction":"156604","assistingprice":"6000000000000000000","saleauction":null,"saleprice":null,"privateauctionprofile":null,"previousowner":null,"pjstatus":null,"pjlevel":null,"summoner_id":"75402","summoner_mainclass":"1","summoner_rarity":1,"summoner_generation":1,"summoner_visualgenes":"57102858832081892441165424622321414241667223398396838941914506513648805","assistant_id":"73163","assistant_mainclass":"0","assistant_rarity":0,"assistant_generation":3,"assistant_visualgenes":"170874039405763969121456392082892553302941147267447840233522985068141573","owner_name":"antonyip","owner_picid":null,"owner_address":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","owner_nftid":"12","owner_collectionid":"0","assistauction_startingprice":"6000000000000000000","assistauction_endingprice":"6000000000000000000","assistauction_duration":"60","assistauction_startedat":"1645936904","saleauction_startingprice":null,"saleauction_endingprice":null,"saleauction_duration":null,"saleauction_startedat":null,"firstname_string":"Qazos","lastname_string":"Hydragem","summons_remaining":4,"current_stamina":"2.354332069176924933839"}]
+*/
+  var i = 0;
+  return (
+  <div style={{ height: 600, width: '100%' }}>
+    <Grid container spacing={2}>
+      <Grid item md={12}>
+        <h2>Hero Valuation Page Calculator</h2>
+      </Grid>
+      <TextField id="HeroIDTextField" onChange={(v) => {setTextFieldHeroID(v.target.value)}} label="Outlined" variant="outlined" />
+      <Button variant="contained" onClick={() => {
+        setHeroID(textFieldHeroID)
+        console.log(textFieldHeroID);
+      }}>Load Hero</Button>
+      <h3>Hero selected: {heroID}</h3>
+      <p> id: {dataHero.id} 
+          owner: {dataHero.owner} 
+          mainclass: {dataHero.mainclass}
+          subclass: {dataHero.subclass}
+          rarity: {dataHero.rarity} 
+          generation: {dataHero.generation} 
+          summons: {dataHero.summons} 
+          maxsummons: {dataHero.maxsummons} 
+          level: {dataHero.level} 
+          profession: {dataHero.profession} 
+       </p>
+      <p>valuation: {dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity][dataHero.maxsummons-dataHero.summons]}</p>
+    </Grid>
+  </div>
+  );
 }
+
 
 function PermanentDrawerLeft() {
   const [page, setPage] = useState(0);
@@ -1834,30 +414,25 @@ function PermanentDrawerLeft() {
         </List>
         <Divider />
         <List>
-            <ListItem button key={'MagicEden'} onClick={() => setPage(1)}>
+            <ListItem button key={'HeroSales'} onClick={() => setPage(1)}>
               <ListItemIcon>
                 <Image alt="" src='/meLogo.png' height={24} width={24} />
               </ListItemIcon>
-              <ListItemText primary={'MagicEden'} />
+              <ListItemText primary={'HeroSales'} />
             </ListItem>
-            <ListItem button key={'SolSea'} onClick={() => setPage(2)}>
+            <ListItem button key={'CalcsPage'} onClick={() => setPage(2)}>
               <ListItemIcon>
-              <Image alt="" src='/solsea.jpg' height={24} width={24} />
+                <Image alt="" src='/meLogo.png' height={24} width={24} />
               </ListItemIcon>
-              <ListItemText primary={'SolSea'} />
+              <ListItemText primary={'CalcsPage'} />
             </ListItem>
-            <ListItem button key={'Solanart'} onClick={() => setPage(3)}>
+            <ListItem button key={'HeroValuation'} onClick={() => setPage(3)}>
               <ListItemIcon>
-              <Image alt="" src='/solanart.jpeg' height={24} width={24} />
+                <Image alt="" src='/meLogo.png' height={24} width={24} />
               </ListItemIcon>
-              <ListItemText primary={'Solanart'} />
+              <ListItemText primary={'HeroValuation'} />
             </ListItem>
-            <ListItem button key={'The Next Project'} onClick={() => setPage(4)}>
-              <ListItemIcon>
-              <Image alt="" src='/opensea.png' height={24} width={24} />
-              </ListItemIcon>
-              <ListItemText primary={'The Next Project'} />
-            </ListItem>
+            
         </List>
         <Divider />
       </Drawer>

@@ -4,9 +4,11 @@ import axios from 'axios'
 export default async function handler(req, res) {
     let returnValue = "";
     let returnStatus = 200;
-    await axios.get('https://api.flipsidecrypto.com/api/v2/queries/5783b5bd-ac5a-490b-bd71-0bfdabef5eaf/data/latest').then(reply => {
+    
+    await axios.post("https://us-central1-defi-kingdoms-api.cloudfunctions.net/query_heroes",
+    {"limit":1,"params":[{"field":"id","operator":"=","value":req.query.id.toString()}],"offset":0}
+    ).then(reply => {
         returnValue = reply.data;
-        
     }).catch(err => {
         returnValue = { error: err }
         returnStatus = 400;
@@ -14,4 +16,3 @@ export default async function handler(req, res) {
 
     res.status(returnStatus).json(returnValue)
   }
-  
