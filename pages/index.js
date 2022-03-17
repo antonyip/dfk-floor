@@ -307,36 +307,95 @@ function HeroValuationPage()
 
 
   if (data === "") return (<div><CircularProgress /></div>);
-  /*
+
+
+  var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0}
+
+  var dataParams = {
+    "0":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "1":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "2":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "3":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "4":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "5":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "6":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "7":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "16":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "17":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "18":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "19":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "24":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "25":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "28":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}}
+  }
+
+  var heroClass = ["0","1","2","3","4","5","6","7","16","17","18","19","24","25","28"]
+  var generations = ["g0","g1","g2","g3","g4","g5","g6","g7","g8","g9","g10","g11"]
+  var sumLeft = ["0","1","2","3","4","5","6","7","8","9","10"]
+  heroClass.forEach(c => {
+    generations.forEach(g => {
+      dataParams[c]["Rarity"]["0"][g] = {}
+      dataParams[c]["Rarity"]["1"][g] = {}
+      dataParams[c]["Rarity"]["2"][g] = {}
+      dataParams[c]["Rarity"]["3"][g] = {}
+      dataParams[c]["Rarity"]["4"][g] = {}
+      sumLeft.forEach(s => {
+        dataParams[c]["Rarity"]["0"][g][s] = JSON.parse(JSON.stringify(priceParams));
+        dataParams[c]["Rarity"]["1"][g][s] = JSON.parse(JSON.stringify(priceParams));
+        dataParams[c]["Rarity"]["2"][g][s] = JSON.parse(JSON.stringify(priceParams));
+        dataParams[c]["Rarity"]["3"][g][s] = JSON.parse(JSON.stringify(priceParams));
+        dataParams[c]["Rarity"]["4"][g][s] = JSON.parse(JSON.stringify(priceParams));
+      })
+    })
+  })
+
+  //var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0}
+    /*
   {"HERO_INFO_CLASS":"28","HERO_INFO_RARITY":"0","PROFESSION_MAIN":"fishing",
   "SUMMONS_LEFT":1,"MIN_JEWEL":1556.25,"MAX_JEWEL":3200,"AVG_JEWEL":2276.041666666667,
   "MEDIAN_JEWEL":2150,"MODE_JEWEL":2150,"TW_AVERAGE":2434.722222222222,"RANGE":1643.75,"SAMPLE_SIZE":6}
   */
 
-  var dataParams = {
-    "0":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "1":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "2":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "3":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "4":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "5":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "6":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "7":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "16":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "17":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "18":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "19":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "24":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "25":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}},
-    "28":{"Rarity":{"0":[0,0,0,0,0,0,0,0,0,0,0],"1":[0,0,0,0,0,0,0,0,0,0,0],"2":[0,0,0,0,0,0,0,0,0,0,0],"3":[0,0,0,0,0,0,0,0,0,0,0],"4":[0,0,0,0,0,0,0,0,0,0,0]}}
-  }
   data.data.forEach(element => {
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY][element.SUMMONS_LEFT] = element.TW_AVERAGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].min = element.MIN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].max = element.MAX_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].avg = element.AVG_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].median = element.MEDIAN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].mode = element.MODE_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].twavg = element.TW_AVERAGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].range = element.RANGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].size = element.SAMPLE_SIZE
   });
 
-  //console.log(dataParams);
+  console.log(dataParams);
 /*
-[{"id":"77012","numberid":"77012","owner":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","creator":null,"statgenes":"3722263269009836606871127504078018274272028221842442974888100582526990","visualgenes":"57102911489886451134320217114532560776123841439875753507939014772004069","rarity":0,"shiny":false,"generation":4,"firstname":876,"lastname":258,"shinystyle":11,"mainclass":"1","subclass":"7","summonedtime":"1640109739","nextsummontime":"1640196139","summonerid":"75402","assistantid":"73163","summons":0,"maxsummons":4,"staminafullat":"1647466706","hpfullat":"0","mpfullat":"0","level":6,"xp":"1715","currentquest":"0x0000000000000000000000000000000000000000","sp":0,"status":"0","strength":18,"intelligence":7,"wisdom":9,"luck":9,"agility":9,"vitality":21,"endurance":19,"dexterity":11,"hp":337,"mp":56,"stamina":28,"strengthgrowthp":7000,"intelligencegrowthp":2000,"wisdomgrowthp":2500,"luckgrowthp":3500,"agilitygrowthp":4700,"vitalitygrowthp":7500,"endurancegrowthp":7500,"dexteritygrowthp":5500,"strengthgrowths":1750,"intelligencegrowths":500,"wisdomgrowths":500,"luckgrowths":1375,"agilitygrowths":1650,"vitalitygrowths":1500,"endurancegrowths":1375,"dexteritygrowths":1750,"hpsmgrowth":1500,"hprggrowth":3500,"hplggrowth":5000,"mpsmgrowth":4000,"mprggrowth":4000,"mplggrowth":2000,"mining":56,"gardening":0,"foraging":0,"fishing":147,"profession":"fishing","passive1":"Basic8","passive2":"Basic4","active1":"Basic5","active2":"Basic5","statboost1":"AGI","statboost2":"AGI","statsunknown1":"18","element":"dark","statsunknown2":"0","gender":"male","headappendage":"5","backappendage":"2","background":"plains","hairstyle":"1","haircolor":"66489e","visualunknown1":"7","eyecolor":"896693","skincolor":"e6a861","appendagecolor":"c5bfa7","backappendagecolor":"a88b47","visualunknown2":"5","assistingauction":"156604","assistingprice":"6000000000000000000","saleauction":null,"saleprice":null,"privateauctionprofile":null,"previousowner":null,"pjstatus":null,"pjlevel":null,"summoner_id":"75402","summoner_mainclass":"1","summoner_rarity":1,"summoner_generation":1,"summoner_visualgenes":"57102858832081892441165424622321414241667223398396838941914506513648805","assistant_id":"73163","assistant_mainclass":"0","assistant_rarity":0,"assistant_generation":3,"assistant_visualgenes":"170874039405763969121456392082892553302941147267447840233522985068141573","owner_name":"antonyip","owner_picid":null,"owner_address":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","owner_nftid":"12","owner_collectionid":"0","assistauction_startingprice":"6000000000000000000","assistauction_endingprice":"6000000000000000000","assistauction_duration":"60","assistauction_startedat":"1645936904","saleauction_startingprice":null,"saleauction_endingprice":null,"saleauction_duration":null,"saleauction_startedat":null,"firstname_string":"Qazos","lastname_string":"Hydragem","summons_remaining":4,"current_stamina":"2.354332069176924933839"}]
+[{"id":"77012","numberid":"77012","owner":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","creator":null,
+"statgenes":"3722263269009836606871127504078018274272028221842442974888100582526990",
+"visualgenes":"57102911489886451134320217114532560776123841439875753507939014772004069",
+"rarity":0,"shiny":false,"generation":4,"firstname":876,"lastname":258,"shinystyle":11,
+"mainclass":"1","subclass":"7","summonedtime":"1640109739","nextsummontime":"1640196139",
+"summonerid":"75402","assistantid":"73163","summons":0,"maxsummons":4,"staminafullat":"1647466706",
+"hpfullat":"0","mpfullat":"0","level":6,"xp":"1715","currentquest":"0x0000000000000000000000000000000000000000",
+"sp":0,"status":"0","strength":18,"intelligence":7,"wisdom":9,"luck":9,"agility":9,"vitality":21,"endurance":19,
+"dexterity":11,"hp":337,"mp":56,"stamina":28,"strengthgrowthp":7000,"intelligencegrowthp":2000,"wisdomgrowthp":2500,
+"luckgrowthp":3500,"agilitygrowthp":4700,"vitalitygrowthp":7500,"endurancegrowthp":7500,"dexteritygrowthp":5500,
+"strengthgrowths":1750,"intelligencegrowths":500,"wisdomgrowths":500,"luckgrowths":1375,"agilitygrowths":1650,
+"vitalitygrowths":1500,"endurancegrowths":1375,"dexteritygrowths":1750,"hpsmgrowth":1500,"hprggrowth":3500,"hplggrowth":5000,
+"mpsmgrowth":4000,"mprggrowth":4000,"mplggrowth":2000,"mining":56,"gardening":0,"foraging":0,"fishing":147,"profession":"fishing",
+"passive1":"Basic8","passive2":"Basic4","active1":"Basic5","active2":"Basic5","statboost1":"AGI","statboost2":"AGI",
+"statsunknown1":"18","element":"dark","statsunknown2":"0","gender":"male","headappendage":"5","backappendage":"2",
+"background":"plains","hairstyle":"1","haircolor":"66489e","visualunknown1":"7","eyecolor":"896693","skincolor":"e6a861",
+"appendagecolor":"c5bfa7","backappendagecolor":"a88b47","visualunknown2":"5","assistingauction":"156604",
+"assistingprice":"6000000000000000000","saleauction":null,"saleprice":null,"privateauctionprofile":null,
+"previousowner":null,"pjstatus":null,"pjlevel":null,"summoner_id":"75402","summoner_mainclass":"1","summoner_rarity":1,
+"summoner_generation":1,"summoner_visualgenes":"57102858832081892441165424622321414241667223398396838941914506513648805",
+"assistant_id":"73163","assistant_mainclass":"0","assistant_rarity":0,"assistant_generation":3,
+"assistant_visualgenes":"170874039405763969121456392082892553302941147267447840233522985068141573",
+"owner_name":"antonyip","owner_picid":null,"owner_address":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d",
+"owner_nftid":"12","owner_collectionid":"0","assistauction_startingprice":"6000000000000000000",
+"assistauction_endingprice":"6000000000000000000","assistauction_duration":"60","assistauction_startedat":"1645936904",
+"saleauction_startingprice":null,"saleauction_endingprice":null,"saleauction_duration":null,"saleauction_startedat":null,
+"firstname_string":"Qazos","lastname_string":"Hydragem","summons_remaining":4,"current_stamina":"2.354332069176924933839"}]
 */
   var i = 0;
   return (
@@ -368,7 +427,7 @@ function HeroValuationPage()
        </p>
        </Grid>
        <Grid item md={12}>
-      valuation: {dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity][dataHero.maxsummons-dataHero.summons]}
+      valuation: {JSON.stringify(dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity]['g'+dataHero.generation][dataHero.maxsummons-dataHero.summons])}
       </Grid>
     </Grid>
   </div>
