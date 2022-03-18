@@ -34,27 +34,10 @@ import {
   CONSTANTS as dfk_consts,
 } from '@thanpolas/dfk-hero'
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
+import Chart from 'chart.js/auto';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { Input } from '@mui/material';
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+
 
 var colors = [
   '#F63E36',
@@ -106,6 +89,88 @@ const RARITY_INT_TO_STRING = {
   "4": 'Mythic',
 };
 
+function generateChartOptions(myVar, showLegend) {
+  return {
+    elements: {
+      bar: {
+        borderWidth: 2,
+      },
+    },
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+        position: 'top',
+      },
+      title: {
+        display: false,
+        text: myVar,
+      },
+    },
+  };
+}
+
+function generateLineChartData(xValues, yValues) {
+  return {
+    labels: xValues,
+    datasets: [
+      {
+        type: 'line',
+        data: yValues,
+        backgroundColor: colors[16]
+      }
+    ],
+  };
+}
+
+function LazyChartOne(props)
+{
+  const { title, showLabels, data, classFilter, rarityFilter, genFilter, profFilter } = props;
+
+  if (props.data === "") return (<div><CircularProgress /></div>);
+
+  console.log(data);
+  var xValues = []
+  var yValues = []
+  var i = 0;
+  for (var kClass in data)
+  {
+    if (kClass === classFilter) // classFilter
+    {
+      for (var kRare in data[kClass]["Rarity"])
+      {
+        if (kRare === rarityFilter) // RarityFilter
+        {
+          for (var kGen in data[kClass]["Rarity"][kRare])
+          {
+            if (kGen === genFilter)
+            {
+              for (var kProf in data[kClass]["Rarity"][kRare][kGen])
+              {
+                if (kProf === profFilter)
+                {
+                  for (var kSummonsLeft in data[kClass]["Rarity"][kRare][kGen][kProf])
+                  {
+                    const finalD = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["min"]
+                    console.log(finalD);
+                    xValues.push(kSummonsLeft);
+                    yValues.push(finalD);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  var chartOptions = generateChartOptions(title, showLabels);
+  var chartData = generateLineChartData(xValues, yValues);
+  
+  return <Line md={6} options={chartOptions} data={chartData} height={null}/>
+}
+
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -140,6 +205,7 @@ function Pages(props) {
   if(props.pageNumber === 1) {return (<div><HeroValuePage /></div>);}
   if(props.pageNumber === 2) {return (<div><CalcsPage /></div>);}
   if(props.pageNumber === 3) {return (<div><HeroValuationPage /></div>);}
+  if(props.pageNumber === 4) {return (<div><LinesPage /></div>);}
   return (
     <Typography paragraph>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -363,17 +429,17 @@ function HeroValuationPage()
   var heroClass = ["0","1","2","3","4","5","6","7","16","17","18","19","24","25","28"]
   var rarity = ["0","1","2","3","4"]
   var generations = ["g0","g1","g2","g3","g4","g5","g6","g7","g8","g9","g10","g11"]
-  var sumLeft = ["0","1","2","3","4","5","6","7","8","9","10"]
   var professions = ["mining","fishing","gardening","foraging"]
+  var sumLeft = ["0","1","2","3","4","5","6","7","8","9","10"]
   heroClass.forEach(c => {
     rarity.forEach(r => {
       dataParams[c]["Rarity"][r] = {}
       generations.forEach(g => {
         dataParams[c]["Rarity"][r][g] = {}
-        sumLeft.forEach(s => {
-          dataParams[c]["Rarity"][r][g][s] = {}
-          professions.forEach (p => {
-            dataParams[c]["Rarity"][r][g][s][p] = JSON.parse(JSON.stringify(priceParams));
+        professions.forEach(p => {
+          dataParams[c]["Rarity"][r][g][p] = {}
+          sumLeft.forEach (s => {
+            dataParams[c]["Rarity"][r][g][p][s] = JSON.parse(JSON.stringify(priceParams));
           })
         })
       })
@@ -388,14 +454,14 @@ function HeroValuationPage()
   */
 
   data.data.forEach(element => {
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].min = element.MIN_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].max = element.MAX_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].avg = element.AVG_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].median = element.MEDIAN_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].mode = element.MODE_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].twavg = element.TW_AVERAGE
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].range = element.RANGE
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].size = element.SAMPLE_SIZE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].min = element.MIN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].max = element.MAX_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].avg = element.AVG_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].median = element.MEDIAN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].mode = element.MODE_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].twavg = element.TW_AVERAGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].range = element.RANGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].size = element.SAMPLE_SIZE
   });
 
   const statGenes = decodeRecessiveGeneAndNormalize("0x"+parseInt(dataHero.statgenes,10).toString(16))
@@ -441,8 +507,15 @@ function HeroValuationPage()
       <Grid item md={12}>
       <TextField id="HeroIDTextField" onChange={(v) => {setTextFieldHeroID(v.target.value)}} label="Outlined" variant="outlined" />
       <Button variant="contained" onClick={() => {
-        setHeroID(textFieldHeroID)
-        console.log(textFieldHeroID);
+        if (parseInt(textFieldHeroID) > 2050)
+        {
+          setHeroID(textFieldHeroID)
+        }
+        else
+        {
+          alert("not allowed to do hero ids under 2060")
+        }
+        
       }}>Load Hero</Button>
       </Grid>
       <Grid item md={12}>
@@ -480,17 +553,17 @@ function HeroValuationPage()
             {/* strength":18,"intelligence":7,"wisdom":9,"luck":9,"agility":9,"vitality":21,"endurance":19,
                 "dexterity":11,"hp":337,"mp":56,"stamina":28 */
             }
-            <Grid item xs={6}>strength</Grid><Grid item xs={6}>       {dataHero.strength}</Grid>
-            <Grid item xs={6}>intelligence</Grid><Grid item xs={6}>       {dataHero.intelligence}</Grid>
-            <Grid item xs={6}>wisdom</Grid><Grid item xs={6}>       {dataHero.wisdom}</Grid>
-            <Grid item xs={6}>luck</Grid><Grid item xs={6}>       {dataHero.luck}</Grid>
-            <Grid item xs={6}>agility</Grid><Grid item xs={6}>       {dataHero.agility}</Grid>
-            <Grid item xs={6}>vitality</Grid ><Grid item xs={6}>      {dataHero.vitality}</Grid>
-            <Grid item xs={6}>endurance</Grid ><Grid item xs={6}>      {dataHero.endurance}</Grid>
-            <Grid item xs={6}>dexterity</Grid ><Grid item xs={6}>      {dataHero.dexterity}</Grid>
-            <Grid item xs={6}>hp</Grid > <Grid item xs={6}>  {dataHero.hp}</Grid>
-            <Grid item xs={6}>mp</Grid ><Grid item xs={6}>   {dataHero.mp}</Grid>
-            <Grid item xs={6}>stamina</Grid ><Grid item xs={6}>   {dataHero.stamina}</Grid>
+            <Grid item xs={6}>s</Grid><Grid item xs={6}>       {0}</Grid>
+            <Grid item xs={6}>s</Grid><Grid item xs={6}>       {0}</Grid>
+            <Grid item xs={6}>s</Grid><Grid item xs={6}>       {0}</Grid>
+            <Grid item xs={6}>s</Grid><Grid item xs={6}>       {0}</Grid>
+            <Grid item xs={6}>s</Grid><Grid item xs={6}>       {0}</Grid>
+            <Grid item xs={6}>s</Grid ><Grid item xs={6}>      {0}</Grid>
+            <Grid item xs={6}>s</Grid ><Grid item xs={6}>      {0}</Grid>
+            <Grid item xs={6}>s</Grid ><Grid item xs={6}>      {0}</Grid>
+            <Grid item xs={6}>s</Grid > <Grid item xs={6}>     {0}</Grid>
+            <Grid item xs={6}>s</Grid ><Grid item xs={6}>      {0}</Grid>
+            <Grid item xs={6}>s</Grid ><Grid item xs={6}>      {0}</Grid>
           </Grid>
           <Grid container xs={4} spacing={1}>
             <Grid item xs={6}>profession d:</Grid><Grid item xs={6}>     {statGenes.professionGenes[0]}</Grid>
@@ -508,14 +581,135 @@ function HeroValuationPage()
           </Grid>
         </Grid>
        </Grid>
-       <Grid item md={12}>
-      valuation: {JSON.stringify(dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity]['g'+dataHero.generation][dataHero.maxsummons-dataHero.summons][statGenes.professionGenes[0]])}
+       <Grid container >
+      valuation: {JSON.stringify(dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity]['g'+dataHero.generation][statGenes.professionGenes[0]][dataHero.maxsummons-dataHero.summons])}
       </Grid>
     </Grid>
   </div>
   );
 }
 
+function LinesPage()
+{
+  const [data,setData] = useState("")
+
+  React.useEffect(() => {
+    axios.get("/api/getFloors").then (response => {
+      setData(response);
+    }).catch (error => {
+      console.log(error);
+    })
+
+  },[])
+
+
+
+  if (data === "") return (<div><CircularProgress /></div>);
+
+
+  var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0}
+
+  var dataParams = {
+    "0":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "1":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "2":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "3":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "4":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "5":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "6":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "7":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "16":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "17":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "18":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "19":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "24":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "25":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
+    "28":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}}
+  }
+
+  var heroClass = ["0","1","2","3","4","5","6","7","16","17","18","19","24","25","28"]
+  var rarity = ["0","1","2","3","4"]
+  var generations = ["g0","g1","g2","g3","g4","g5","g6","g7","g8","g9","g10","g11"]
+  var professions = ["mining","fishing","gardening","foraging"]
+  var sumLeft = ["0","1","2","3","4","5","6","7","8","9","10"]
+  heroClass.forEach(c => {
+    rarity.forEach(r => {
+      dataParams[c]["Rarity"][r] = {}
+      generations.forEach(g => {
+        dataParams[c]["Rarity"][r][g] = {}
+        professions.forEach(p => {
+          dataParams[c]["Rarity"][r][g][p] = {}
+          sumLeft.forEach (s => {
+            dataParams[c]["Rarity"][r][g][p][s] = JSON.parse(JSON.stringify(priceParams));
+          })
+        })
+      })
+    })
+  })
+
+  //var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0}
+    /*
+  {"HERO_INFO_CLASS":"28","HERO_INFO_RARITY":"0","PROFESSION_MAIN":"fishing",
+  "SUMMONS_LEFT":1,"MIN_JEWEL":1556.25,"MAX_JEWEL":3200,"AVG_JEWEL":2276.041666666667,
+  "MEDIAN_JEWEL":2150,"MODE_JEWEL":2150,"TW_AVERAGE":2434.722222222222,"RANGE":1643.75,"SAMPLE_SIZE":6}
+  */
+
+  data.data.forEach(element => {
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].min = element.MIN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].max = element.MAX_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].avg = element.AVG_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].median = element.MEDIAN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].mode = element.MODE_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].twavg = element.TW_AVERAGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].range = element.RANGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].size = element.SAMPLE_SIZE
+  });
+
+  return (
+    <Grid container spacing={2}>
+      <Grid item md={12}>
+        <h2>Data Agg</h2>
+      </Grid>
+      <Grid item md={12}>
+        <h2>Warriors - Price Per SummonsLeft</h2>
+      </Grid>
+      <Grid container>
+      <Grid item md={3}>common g1 mining
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="mining"/>
+      </Grid><Grid item md={3}>common g1 gardening
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="gardening"/>
+      </Grid><Grid item md={3}>common g1 fishing
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="fishing"/>
+      </Grid><Grid item md={3}>common g1 foraging
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>uncommon g1 mining
+      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="mining"/>
+      </Grid><Grid item md={3}>uncommon g1 gardening
+      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="gardening"/>
+      </Grid><Grid item md={3}>uncommon g1 fishing
+      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="fishing"/>
+      </Grid><Grid item md={3}>uncommon g1 foraging
+      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="foraging"/>
+      </Grid>
+
+      <Grid item md={3}>common g2 mining
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="mining"/>
+      </Grid><Grid item md={3}>common g2 gardening
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="gardening"/>
+      </Grid><Grid item md={3}>common g2 fishing
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="fishing"/>
+      </Grid><Grid item md={3}>common g2 foraging
+        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+    </Grid>
+  );
+}
 
 function PermanentDrawerLeft() {
   const [page, setPage] = useState(0);
@@ -578,7 +772,12 @@ function PermanentDrawerLeft() {
               </ListItemIcon>
               <ListItemText primary={'HeroValuation'} />
             </ListItem>
-            
+            <ListItem button key={'Lines'} onClick={() => setPage(4)}>
+              <ListItemIcon>
+                <Image alt="" src='/meLogo.png' height={24} width={24} />
+              </ListItemIcon>
+              <ListItemText primary={'Lines'} />
+            </ListItem>
         </List>
         <Divider />
       </Drawer>
