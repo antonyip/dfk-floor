@@ -37,7 +37,33 @@ import {
 import Chart from 'chart.js/auto';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { Input } from '@mui/material';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  useQuery,
+  gql
+} from "@apollo/client";
 
+const defaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'cache-and-network',
+    errorPolicy: 'ignore',
+  },
+  query: {
+    fetchPolicy: 'network-only',
+    errorPolicy: 'all',
+  },
+  mutate: {
+    errorPolicy: 'all'
+  }
+}
+
+const gqlclient = new ApolloClient({
+  uri: 'https://defi-kingdoms-community-api-gateway-co06z8vi.uc.gateway.dev/graphql',
+  cache: new InMemoryCache(),
+  defaultOptions: defaultOptions
+});
 
 var colors = [
   '#F63E36',
@@ -89,6 +115,59 @@ const RARITY_INT_TO_STRING = {
   "4": 'Mythic',
 };
 
+const EXCHANGE_RATES = gql`
+  query GetExchangeRates {
+    heroes(where: {saleAuction_not: null} first:5000)
+    {
+      id
+      statGenes
+      visualGenes
+      rarity
+      shiny
+      generation
+      mining
+      gardening
+      foraging
+      fishing
+      level
+      xp
+      mainClass
+      subClass
+      summons
+      maxSummons
+      sp
+      status
+      strength
+      intelligence
+      wisdom
+      luck
+      agility
+      vitality
+      endurance
+      dexterity
+      hp
+      mp
+      stamina
+      profession
+      saleAuction
+      {
+        startingPrice
+        endedAt
+      }
+      salePrice
+      assistingPrice
+      assistingAuction
+      {
+        startedAt
+        endedAt
+        startingPrice
+        endingPrice
+        
+      }
+    }
+  }
+`;
+
 function generateChartOptions(myVar, showLegend) {
   return {
     elements: {
@@ -129,7 +208,7 @@ function LazyChartOne(props)
 
   if (props.data === "") return (<div><CircularProgress /></div>);
 
-  console.log(data);
+  //console.log(data);
   var xValues = []
   var yValues = []
   var i = 0;
@@ -152,7 +231,7 @@ function LazyChartOne(props)
                   for (var kSummonsLeft in data[kClass]["Rarity"][kRare][kGen][kProf])
                   {
                     const finalD = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["min"]
-                    console.log(finalD);
+                    //console.log(finalD);
                     xValues.push(kSummonsLeft);
                     yValues.push(finalD);
                   }
@@ -465,8 +544,8 @@ function HeroValuationPage()
   });
 
   const statGenes = decodeRecessiveGeneAndNormalize("0x"+parseInt(dataHero.statgenes,10).toString(16))
-  console.log(statGenes);
-  console.log(dataParams);
+  //console.log(statGenes);
+  //console.log(dataParams);
 /*
 [{"id":"77013","numberid":"77013","owner":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","creator":null,
 "statgenes":"3722263269009836606871127504078018274272028221842442974888100582526990",
@@ -592,7 +671,13 @@ function HeroValuationPage()
 function LinesPage()
 {
   const [data,setData] = useState("")
-
+  const [gqldata0,setgqlData0] = useState("")
+  const [gqldata1,setgqlData1] = useState("")
+  const [gqldata2,setgqlData2] = useState("")
+  const [gqldata3,setgqlData3] = useState("")
+  const [gqldata4,setgqlData4] = useState("")
+  const [gqldata5,setgqlData5] = useState("")
+  const [gqldata6,setgqlData6] = useState("")
   React.useEffect(() => {
     axios.get("/api/getFloors").then (response => {
       setData(response);
@@ -600,12 +685,401 @@ function LinesPage()
       console.log(error);
     })
 
+    gqlclient.query({query: gql`query GetExchangeRates {
+      heroes(where: {saleAuction_not: null} first:1000 skip:0)
+      {
+        id
+        statGenes
+        visualGenes
+        rarity
+        shiny
+        generation
+        mining
+        gardening
+        foraging
+        fishing
+        level
+        xp
+        mainClass
+        subClass
+        summons
+        maxSummons
+        sp
+        status
+        strength
+        intelligence
+        wisdom
+        luck
+        agility
+        vitality
+        endurance
+        dexterity
+        hp
+        mp
+        stamina
+        profession
+        saleAuction
+        {
+          startingPrice
+          endedAt
+        }
+        salePrice
+        assistingPrice
+        assistingAuction
+        {
+          startedAt
+          endedAt
+          startingPrice
+          endingPrice
+          
+        }
+      }
+      }`
+      }).then(res => {
+        setgqlData0(res.data);
+      });
+
+      gqlclient.query({query: gql`query GetExchangeRates {
+        heroes(where: {saleAuction_not: null} first:1000 skip:1000)
+        {
+          id
+          statGenes
+          visualGenes
+          rarity
+          shiny
+          generation
+          mining
+          gardening
+          foraging
+          fishing
+          level
+          xp
+          mainClass
+          subClass
+          summons
+          maxSummons
+          sp
+          status
+          strength
+          intelligence
+          wisdom
+          luck
+          agility
+          vitality
+          endurance
+          dexterity
+          hp
+          mp
+          stamina
+          profession
+          saleAuction
+          {
+            startingPrice
+            endedAt
+          }
+          salePrice
+          assistingPrice
+          assistingAuction
+          {
+            startedAt
+            endedAt
+            startingPrice
+            endingPrice
+            
+          }
+        }
+        }`
+        }).then(res => {
+          setgqlData1(res.data);
+        });
+
+        gqlclient.query({query: gql`query GetExchangeRates {
+          heroes(where: {saleAuction_not: null} first:1000 skip:2000)
+          {
+            id
+            statGenes
+            visualGenes
+            rarity
+            shiny
+            generation
+            mining
+            gardening
+            foraging
+            fishing
+            level
+            xp
+            mainClass
+            subClass
+            summons
+            maxSummons
+            sp
+            status
+            strength
+            intelligence
+            wisdom
+            luck
+            agility
+            vitality
+            endurance
+            dexterity
+            hp
+            mp
+            stamina
+            profession
+            saleAuction
+            {
+              startingPrice
+              endedAt
+            }
+            salePrice
+            assistingPrice
+            assistingAuction
+            {
+              startedAt
+              endedAt
+              startingPrice
+              endingPrice
+              
+            }
+          }
+          }`
+          }).then(res => {
+            setgqlData2(res.data);
+          });
+
+          gqlclient.query({query: gql`query GetExchangeRates {
+            heroes(where: {saleAuction_not: null} first:1000 skip:3000)
+            {
+              id
+              statGenes
+              visualGenes
+              rarity
+              shiny
+              generation
+              mining
+              gardening
+              foraging
+              fishing
+              level
+              xp
+              mainClass
+              subClass
+              summons
+              maxSummons
+              sp
+              status
+              strength
+              intelligence
+              wisdom
+              luck
+              agility
+              vitality
+              endurance
+              dexterity
+              hp
+              mp
+              stamina
+              profession
+              saleAuction
+              {
+                startingPrice
+                endedAt
+              }
+              salePrice
+              assistingPrice
+              assistingAuction
+              {
+                startedAt
+                endedAt
+                startingPrice
+                endingPrice
+                
+              }
+            }
+            }`
+            }).then(res => {
+              setgqlData3(res.data);
+            });
+
+            gqlclient.query({query: gql`query GetExchangeRates {
+              heroes(where: {saleAuction_not: null} first:1000 skip:4000)
+              {
+                id
+                statGenes
+                visualGenes
+                rarity
+                shiny
+                generation
+                mining
+                gardening
+                foraging
+                fishing
+                level
+                xp
+                mainClass
+                subClass
+                summons
+                maxSummons
+                sp
+                status
+                strength
+                intelligence
+                wisdom
+                luck
+                agility
+                vitality
+                endurance
+                dexterity
+                hp
+                mp
+                stamina
+                profession
+                saleAuction
+                {
+                  startingPrice
+                  endedAt
+                }
+                salePrice
+                assistingPrice
+                assistingAuction
+                {
+                  startedAt
+                  endedAt
+                  startingPrice
+                  endingPrice
+                  
+                }
+              }
+              }`
+              }).then(res => {
+                setgqlData4(res.data);
+              });
+
+              gqlclient.query({query: gql`query GetExchangeRates {
+                heroes(where: {saleAuction_not: null} first:1000 skip:5000)
+                {
+                  id
+                  statGenes
+                  visualGenes
+                  rarity
+                  shiny
+                  generation
+                  mining
+                  gardening
+                  foraging
+                  fishing
+                  level
+                  xp
+                  mainClass
+                  subClass
+                  summons
+                  maxSummons
+                  sp
+                  status
+                  strength
+                  intelligence
+                  wisdom
+                  luck
+                  agility
+                  vitality
+                  endurance
+                  dexterity
+                  hp
+                  mp
+                  stamina
+                  profession
+                  saleAuction
+                  {
+                    startingPrice
+                    endedAt
+                  }
+                  salePrice
+                  assistingPrice
+                  assistingAuction
+                  {
+                    startedAt
+                    endedAt
+                    startingPrice
+                    endingPrice
+                    
+                  }
+                }
+                }`
+                }).then(res => {
+                  setgqlData5(res.data);
+                });
+
+                gqlclient.query({query: gql`query GetExchangeRates {
+                  heroes(where: {saleAuction_not: null} first:1000 skip:6000)
+                  {
+                    id
+                    statGenes
+                    visualGenes
+                    rarity
+                    shiny
+                    generation
+                    mining
+                    gardening
+                    foraging
+                    fishing
+                    level
+                    xp
+                    mainClass
+                    subClass
+                    summons
+                    maxSummons
+                    sp
+                    status
+                    strength
+                    intelligence
+                    wisdom
+                    luck
+                    agility
+                    vitality
+                    endurance
+                    dexterity
+                    hp
+                    mp
+                    stamina
+                    profession
+                    saleAuction
+                    {
+                      startingPrice
+                      endedAt
+                    }
+                    salePrice
+                    assistingPrice
+                    assistingAuction
+                    {
+                      startedAt
+                      endedAt
+                      startingPrice
+                      endingPrice
+                      
+                    }
+                  }
+                  }`
+                  }).then(res => {
+                    setgqlData6(res.data);
+                  });
   },[])
 
+  if (gqldata0 === "") return (<div><CircularProgress />0</div>);
+  if (gqldata1 === "") return (<div><CircularProgress />1</div>);
+  if (gqldata2 === "") return (<div><CircularProgress />2</div>);
+  if (gqldata3 === "") return (<div><CircularProgress />3</div>);
+  if (gqldata4 === "") return (<div><CircularProgress />4</div>);
+  if (gqldata5 === "") return (<div><CircularProgress />5</div>);
+  if (gqldata6 === "") return (<div><CircularProgress />6</div>);
+  if (data === "") return (<div><CircularProgress />7</div>);
 
-
-  if (data === "") return (<div><CircularProgress /></div>);
-
+  gqldata4.heroes.map((x) => {
+    return (
+    <Grid item xs={12}>
+        {x.id}: {x.generation}
+    </Grid>
+    );
+  })
 
   var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0}
 
@@ -795,7 +1269,7 @@ function PermanentDrawerLeft() {
 export default function Home() {
   return (
     <div className={styles.container}>
-      <PermanentDrawerLeft />
+        <PermanentDrawerLeft />
     </div>
   )
 }
