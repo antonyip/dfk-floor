@@ -23,7 +23,7 @@ import Image from 'next/image';
 import axios from 'axios';
 import CircularProgress from '@mui/material/CircularProgress'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { DateRange } from '@mui/icons-material';
+import { DateRange, Power } from '@mui/icons-material';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import date from 'date-and-time';
@@ -104,7 +104,25 @@ const CLASS_INT_TO_STRING = {
   "19": 'Ninja',
   "24": 'Dragoon',
   "25": 'Sage',
-  "29": 'DreadKnight',
+  "28": 'DreadKnight',
+};
+
+const CLASS_STRING_TO_INT = {
+  'Warrior': "0",
+  'Knight': "1",
+  'Thief': "2",
+  'Archer': "3",
+  'Priest': "4",
+  'Wizard': "5",
+  'Monk': "6",
+  'Pirate': "7",
+  'Paladin': "16",
+  'DarkKnight': "17",
+  'Summoner': "18",
+  'Ninja': "19",
+  'Dragoon': "24",
+  'Sage': "25",
+  'DreadKnight': "28",
 };
 
 const RARITY_INT_TO_STRING = {
@@ -114,59 +132,6 @@ const RARITY_INT_TO_STRING = {
   "3": 'Legendary',
   "4": 'Mythic',
 };
-
-const EXCHANGE_RATES = gql`
-  query GetExchangeRates {
-    heroes(where: {saleAuction_not: null} first:5000)
-    {
-      id
-      statGenes
-      visualGenes
-      rarity
-      shiny
-      generation
-      mining
-      gardening
-      foraging
-      fishing
-      level
-      xp
-      mainClass
-      subClass
-      summons
-      maxSummons
-      sp
-      status
-      strength
-      intelligence
-      wisdom
-      luck
-      agility
-      vitality
-      endurance
-      dexterity
-      hp
-      mp
-      stamina
-      profession
-      saleAuction
-      {
-        startingPrice
-        endedAt
-      }
-      salePrice
-      assistingPrice
-      assistingAuction
-      {
-        startedAt
-        endedAt
-        startingPrice
-        endingPrice
-        
-      }
-    }
-  }
-`;
 
 function generateChartOptions(myVar, showLegend) {
   return {
@@ -194,9 +159,19 @@ function generateLineChartData(xValues, yValues) {
     labels: xValues,
     datasets: [
       {
+        type: 'bar',
+        data: yValues[0],
+        backgroundColor: "#0000ff99"
+      },
+      {
         type: 'line',
-        data: yValues,
-        backgroundColor: colors[16]
+        data: yValues[1],
+        backgroundColor: "#00ff00"
+      },
+      {
+        type: 'line',
+        data: yValues[2],
+        backgroundColor: "#ff0000"
       }
     ],
   };
@@ -211,6 +186,8 @@ function LazyChartOne(props)
   //console.log(data);
   var xValues = []
   var yValues = []
+  var yValues2 = [];
+  var yValues3 = [];
   var i = 0;
   for (var kClass in data)
   {
@@ -230,10 +207,16 @@ function LazyChartOne(props)
                 {
                   for (var kSummonsLeft in data[kClass]["Rarity"][kRare][kGen][kProf])
                   {
-                    const finalD = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["min"]
-                    //console.log(finalD);
                     xValues.push(kSummonsLeft);
+
+                    const finalD = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["min"]
                     yValues.push(finalD);
+
+                    const finalD2 = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["tavernFloor"]
+                    yValues2.push(finalD2)
+
+                    const finalD3 = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["calc"]
+                    yValues3.push(finalD3)
                   }
                 }
               }
@@ -245,7 +228,7 @@ function LazyChartOne(props)
   }
 
   var chartOptions = generateChartOptions(title, showLabels);
-  var chartData = generateLineChartData(xValues, yValues);
+  var chartData = generateLineChartData(xValues, [yValues3, yValues, yValues2]);
   
   return <Line md={6} options={chartOptions} data={chartData} height={null}/>
 }
@@ -532,6 +515,7 @@ function HeroValuationPage()
   "MEDIAN_JEWEL":2150,"MODE_JEWEL":2150,"TW_AVERAGE":2434.722222222222,"RANGE":1643.75,"SAMPLE_SIZE":6}
   */
 
+  // parse the old sales data
   data.data.forEach(element => {
       dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].min = element.MIN_JEWEL
       dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].max = element.MAX_JEWEL
@@ -542,6 +526,10 @@ function HeroValuationPage()
       dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].range = element.RANGE
       dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].size = element.SAMPLE_SIZE
   });
+
+  
+
+
 
   const statGenes = decodeRecessiveGeneAndNormalize("0x"+parseInt(dataHero.statgenes,10).toString(16))
   //console.log(statGenes);
@@ -1073,15 +1061,7 @@ function LinesPage()
   if (gqldata6 === "") return (<div><CircularProgress />6</div>);
   if (data === "") return (<div><CircularProgress />7</div>);
 
-  gqldata4.heroes.map((x) => {
-    return (
-    <Grid item xs={12}>
-        {x.id}: {x.generation}
-    </Grid>
-    );
-  })
-
-  var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0}
+  var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0, "tavernFloor":0, "calc":25}
 
   var dataParams = {
     "0":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
@@ -1137,7 +1117,57 @@ function LinesPage()
       dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].twavg = element.TW_AVERAGE
       dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].range = element.RANGE
       dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].size = element.SAMPLE_SIZE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.PROFESSION_MAIN][element.SUMMONS_LEFT].calc = element.MIN_JEWEL
   });
+
+  const apiv6 = [gqldata0,gqldata1,gqldata2,gqldata3,gqldata4,gqldata5,gqldata6]
+  //const apiv6 = [gqldata4]
+
+  var d_main = "";
+  var d_rare = "";
+  var d_gen = "";
+  var d_prof = "";
+  var d_maxsum = "";
+  var d_sum = "";
+  try {
+    apiv6.forEach(x => {
+      x.heroes.forEach( h => {
+        if (h.generation !== 0)
+        {
+          d_main = h.mainClass;
+          d_rare = h.rarity.toString();
+          d_gen = h.generation.toString();
+          d_prof = h.profession;
+          d_maxsum = h.maxSummons;
+          d_sum = h.summons;
+          if (dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["tavernFloor"] === 0
+          || dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["tavernFloor"] > h.salePrice/10**18
+          )
+          {
+            dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["tavernFloor"] = h.salePrice/10**18
+
+            if (dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["calc"] > h.salePrice/10**18)
+            {
+              dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["calc"] = h.salePrice/10**18
+            }
+          }
+        }
+      })
+    })
+  }
+  catch(err)
+  {
+    console.log(err);
+    console.log("d_main", d_main);
+    console.log("d_rare", d_rare);
+    console.log("d_gen", d_gen);
+    console.log("d_prof", d_prof);
+    console.log("d_maxsum", d_maxsum);
+    console.log("d_sum", d_sum);
+    return <>error!</>;
+  }
+
+  //console.log("dataParams", dataParams);
 
   return (
     <Grid container spacing={2}>
@@ -1146,6 +1176,7 @@ function LinesPage()
       </Grid>
       <Grid item md={12}>
         <h2>Warriors - Price Per SummonsLeft</h2>
+        <h2>Green line is Sold, Red is in Min Tavern Price, blue is the number we are adjusting</h2>
       </Grid>
       <Grid container>
       <Grid item md={3}>common g1 mining
