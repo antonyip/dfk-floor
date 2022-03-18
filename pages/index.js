@@ -28,6 +28,11 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import date from 'date-and-time';
 import Paper from '@mui/material/Paper';
+import {
+  decodeRecessiveGenesAndNormalize,
+  decodeRecessiveGeneAndNormalize,
+  CONSTANTS as dfk_consts,
+} from '@thanpolas/dfk-hero'
 
 import {
   Chart as ChartJS,
@@ -74,6 +79,32 @@ var colors = [
   '#2C8CF6',
   '#2F58F6',
 ]
+
+const CLASS_INT_TO_STRING = {
+  "0": 'Warrior',
+  "1": 'Knight',
+  "2": 'Thief',
+  "3": 'Archer',
+  "4": 'Priest',
+  "5": 'Wizard',
+  "6": 'Monk',
+  "7": 'Pirate',
+  "16": 'Paladin',
+  "17": 'DarkKnight',
+  "18": 'Summoner',
+  "19": 'Ninja',
+  "24": 'Dragoon',
+  "25": 'Sage',
+  "29": 'DreadKnight',
+};
+
+const RARITY_INT_TO_STRING = {
+  "0": 'Common',
+  "1": 'Uncommon',
+  "2": 'Rare',
+  "3": 'Legendary',
+  "4": 'Mythic',
+};
 
 const drawerWidth = 240;
 
@@ -277,8 +308,8 @@ function HeroValuationPage()
 {
   const [data,setData] = useState("")
   const [dataHero,setDataHero] = useState("")
-  const [heroID, setHeroID] = useState("77012")
-  const [textFieldHeroID, setTextFieldHeroID] = useState("77012")
+  const [heroID, setHeroID] = useState("77013")
+  const [textFieldHeroID, setTextFieldHeroID] = useState("77013")
   React.useEffect(() => {
     axios.get("/api/getFloors").then (response => {
       setData(response);
@@ -330,21 +361,21 @@ function HeroValuationPage()
   }
 
   var heroClass = ["0","1","2","3","4","5","6","7","16","17","18","19","24","25","28"]
+  var rarity = ["0","1","2","3","4"]
   var generations = ["g0","g1","g2","g3","g4","g5","g6","g7","g8","g9","g10","g11"]
   var sumLeft = ["0","1","2","3","4","5","6","7","8","9","10"]
+  var professions = ["mining","fishing","gardening","foraging"]
   heroClass.forEach(c => {
-    generations.forEach(g => {
-      dataParams[c]["Rarity"]["0"][g] = {}
-      dataParams[c]["Rarity"]["1"][g] = {}
-      dataParams[c]["Rarity"]["2"][g] = {}
-      dataParams[c]["Rarity"]["3"][g] = {}
-      dataParams[c]["Rarity"]["4"][g] = {}
-      sumLeft.forEach(s => {
-        dataParams[c]["Rarity"]["0"][g][s] = JSON.parse(JSON.stringify(priceParams));
-        dataParams[c]["Rarity"]["1"][g][s] = JSON.parse(JSON.stringify(priceParams));
-        dataParams[c]["Rarity"]["2"][g][s] = JSON.parse(JSON.stringify(priceParams));
-        dataParams[c]["Rarity"]["3"][g][s] = JSON.parse(JSON.stringify(priceParams));
-        dataParams[c]["Rarity"]["4"][g][s] = JSON.parse(JSON.stringify(priceParams));
+    rarity.forEach(r => {
+      dataParams[c]["Rarity"][r] = {}
+      generations.forEach(g => {
+        dataParams[c]["Rarity"][r][g] = {}
+        sumLeft.forEach(s => {
+          dataParams[c]["Rarity"][r][g][s] = {}
+          professions.forEach (p => {
+            dataParams[c]["Rarity"][r][g][s][p] = JSON.parse(JSON.stringify(priceParams));
+          })
+        })
       })
     })
   })
@@ -357,19 +388,21 @@ function HeroValuationPage()
   */
 
   data.data.forEach(element => {
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].min = element.MIN_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].max = element.MAX_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].avg = element.AVG_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].median = element.MEDIAN_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].mode = element.MODE_JEWEL
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].twavg = element.TW_AVERAGE
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].range = element.RANGE
-      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT].size = element.SAMPLE_SIZE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].min = element.MIN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].max = element.MAX_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].avg = element.AVG_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].median = element.MEDIAN_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].mode = element.MODE_JEWEL
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].twavg = element.TW_AVERAGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].range = element.RANGE
+      dataParams[element.HERO_INFO_CLASS]["Rarity"][element.HERO_INFO_RARITY]["g"+element.HERO_INFO_GENERATION][element.SUMMONS_LEFT][element.PROFESSION_MAIN].size = element.SAMPLE_SIZE
   });
 
+  const statGenes = decodeRecessiveGeneAndNormalize("0x"+parseInt(dataHero.statgenes,10).toString(16))
+  console.log(statGenes);
   console.log(dataParams);
 /*
-[{"id":"77012","numberid":"77012","owner":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","creator":null,
+[{"id":"77013","numberid":"77013","owner":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","creator":null,
 "statgenes":"3722263269009836606871127504078018274272028221842442974888100582526990",
 "visualgenes":"57102911489886451134320217114532560776123841439875753507939014772004069",
 "rarity":0,"shiny":false,"generation":4,"firstname":876,"lastname":258,"shinystyle":11,
@@ -402,7 +435,7 @@ function HeroValuationPage()
   <div style={{ height: 600, width: '100%' }}>
     <Grid container spacing={2}>
       <Grid item md={12}>
-        <h2>Hero Valuation Page Calculator - Ignore this for now, its not right</h2>
+        <h2>Hero Valuation Page Calculator - Probably not 100% accurate...</h2>
       </Grid>
       <Grid item md={12}>
       <TextField id="HeroIDTextField" onChange={(v) => {setTextFieldHeroID(v.target.value)}} label="Outlined" variant="outlined" />
@@ -413,21 +446,69 @@ function HeroValuationPage()
       </Grid>
       <Grid item md={12}>
       <h3>Hero selected: {heroID}</h3>
-      <p> 
-          <li>id: {dataHero.id} </li>
-          <li>owner: {dataHero.owner} </li>
-          <li>mainclass: {dataHero.mainclass}</li>
-          <li>subclass: {dataHero.subclass}</li>
-          <li>rarity: {dataHero.rarity} </li>
-          <li>generation: {dataHero.generation} </li>
-          <li>summons: {dataHero.summons} </li>
-          <li>maxsummons: {dataHero.maxsummons} </li>
-          <li>level: {dataHero.level} </li>
-          <li>profession: {dataHero.profession} </li>
-       </p>
+        <Grid container xs={12} spacing={0}>
+          <Grid container xs={4} spacing={1}>
+            <Grid item xs={6}>id:</Grid ><Grid item xs={6}> {dataHero.id} </Grid >
+            <Grid item xs={6}>owner:</Grid ><Grid item xs={6}> {dataHero.owner.substr(0,10)+"..."} </Grid >
+            <Grid item xs={6}>mainclass:</Grid ><Grid item xs={6}> {CLASS_INT_TO_STRING[(dataHero.mainclass)]}</Grid >
+            <Grid item xs={6}>subclass:</Grid ><Grid item xs={6}> {CLASS_INT_TO_STRING[(dataHero.subclass)]}</Grid >
+            <Grid item xs={6}>rarity:</Grid ><Grid item xs={6}> {RARITY_INT_TO_STRING[dataHero.rarity]} </Grid >
+            <Grid item xs={6}>generation:</Grid ><Grid item xs={6}> {dataHero.generation} </Grid >
+            <Grid item xs={6}>summons:</Grid ><Grid item xs={6}> {dataHero.summons} </Grid >
+            <Grid item xs={6}>maxsummons:</Grid ><Grid item xs={6}> {dataHero.maxsummons} </Grid >
+            <Grid item xs={6}>level:</Grid ><Grid item xs={6}> {dataHero.level} </Grid >
+            <Grid item xs={6}>profession:</Grid ><Grid item xs={6}> {dataHero.profession} </Grid >
+          </Grid>
+          <Grid container xs={2} spacing={1}>
+            {/* strength":18,"intelligence":7,"wisdom":9,"luck":9,"agility":9,"vitality":21,"endurance":19,
+                "dexterity":11,"hp":337,"mp":56,"stamina":28 */
+            }
+            <Grid item xs={6}>strength</Grid><Grid item xs={6}>       {dataHero.strength}</Grid>
+            <Grid item xs={6}>intelligence</Grid><Grid item xs={6}>       {dataHero.intelligence}</Grid>
+            <Grid item xs={6}>wisdom</Grid><Grid item xs={6}>       {dataHero.wisdom}</Grid>
+            <Grid item xs={6}>luck</Grid><Grid item xs={6}>       {dataHero.luck}</Grid>
+            <Grid item xs={6}>agility</Grid><Grid item xs={6}>       {dataHero.agility}</Grid>
+            <Grid item xs={6}>vitality</Grid ><Grid item xs={6}>      {dataHero.vitality}</Grid>
+            <Grid item xs={6}>endurance</Grid ><Grid item xs={6}>      {dataHero.endurance}</Grid>
+            <Grid item xs={6}>dexterity</Grid ><Grid item xs={6}>      {dataHero.dexterity}</Grid>
+            <Grid item xs={6}>hp</Grid > <Grid item xs={6}>  {dataHero.hp}</Grid>
+            <Grid item xs={6}>mp</Grid ><Grid item xs={6}>   {dataHero.mp}</Grid>
+            <Grid item xs={6}>stamina</Grid ><Grid item xs={6}>   {dataHero.stamina}</Grid>
+          </Grid>
+          <Grid container xs={2} spacing={1}>
+            {/* strength":18,"intelligence":7,"wisdom":9,"luck":9,"agility":9,"vitality":21,"endurance":19,
+                "dexterity":11,"hp":337,"mp":56,"stamina":28 */
+            }
+            <Grid item xs={6}>strength</Grid><Grid item xs={6}>       {dataHero.strength}</Grid>
+            <Grid item xs={6}>intelligence</Grid><Grid item xs={6}>       {dataHero.intelligence}</Grid>
+            <Grid item xs={6}>wisdom</Grid><Grid item xs={6}>       {dataHero.wisdom}</Grid>
+            <Grid item xs={6}>luck</Grid><Grid item xs={6}>       {dataHero.luck}</Grid>
+            <Grid item xs={6}>agility</Grid><Grid item xs={6}>       {dataHero.agility}</Grid>
+            <Grid item xs={6}>vitality</Grid ><Grid item xs={6}>      {dataHero.vitality}</Grid>
+            <Grid item xs={6}>endurance</Grid ><Grid item xs={6}>      {dataHero.endurance}</Grid>
+            <Grid item xs={6}>dexterity</Grid ><Grid item xs={6}>      {dataHero.dexterity}</Grid>
+            <Grid item xs={6}>hp</Grid > <Grid item xs={6}>  {dataHero.hp}</Grid>
+            <Grid item xs={6}>mp</Grid ><Grid item xs={6}>   {dataHero.mp}</Grid>
+            <Grid item xs={6}>stamina</Grid ><Grid item xs={6}>   {dataHero.stamina}</Grid>
+          </Grid>
+          <Grid container xs={4} spacing={1}>
+            <Grid item xs={6}>profession d:</Grid><Grid item xs={6}>     {statGenes.professionGenes[0]}</Grid>
+            <Grid item xs={6}>profession r1:</Grid><Grid item xs={6}>    {statGenes.professionGenes[1]}</Grid>
+            <Grid item xs={6}>profession r2:</Grid><Grid item xs={6}>    {statGenes.professionGenes[2]}</Grid>
+            <Grid item xs={6}>profession r3:</Grid><Grid item xs={6}>    {statGenes.professionGenes[3]}</Grid>
+            <Grid item xs={6}>mainclass d:</Grid><Grid item xs={6}>      {statGenes.mainClassGenes[0]}</Grid>
+            <Grid item xs={6}>mainclass r1:</Grid ><Grid item xs={6}>    {statGenes.mainClassGenes[1]}</Grid>
+            <Grid item xs={6}>mainclass r2:</Grid ><Grid item xs={6}>    {statGenes.mainClassGenes[2]}</Grid>
+            <Grid item xs={6}>mainclass r3:</Grid ><Grid item xs={6}>    {statGenes.mainClassGenes[3]}</Grid>
+            <Grid item xs={6}>subclass d:</Grid > <Grid item xs={6}>     {statGenes.subClassGenes[0]}</Grid>
+            <Grid item xs={6}>subclass r1:</Grid ><Grid item xs={6}>     {statGenes.subClassGenes[1]}</Grid>
+            <Grid item xs={6}>subclass r2:</Grid ><Grid item xs={6}>     {statGenes.subClassGenes[2]}</Grid>
+            <Grid item xs={6}>subclass r3:</Grid ><Grid item xs={6}>     {statGenes.subClassGenes[3]}</Grid>
+          </Grid>
+        </Grid>
        </Grid>
        <Grid item md={12}>
-      valuation: {JSON.stringify(dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity]['g'+dataHero.generation][dataHero.maxsummons-dataHero.summons])}
+      valuation: {JSON.stringify(dataParams[dataHero.mainclass]["Rarity"][dataHero.rarity]['g'+dataHero.generation][dataHero.maxsummons-dataHero.summons][statGenes.professionGenes[0]])}
       </Grid>
     </Grid>
   </div>
