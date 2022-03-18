@@ -436,6 +436,7 @@ function HeroValuationPage()
     <Grid container spacing={2}>
       <Grid item md={12}>
         <h2>Hero Valuation Page Calculator - Probably not 100% accurate...</h2>
+        <p> my goto test heroes - 77012(noprice-nodata), 77013(55j), 155466(ninja warrior,no sums left, 92-150j)</p>
       </Grid>
       <Grid item md={12}>
       <TextField id="HeroIDTextField" onChange={(v) => {setTextFieldHeroID(v.target.value)}} label="Outlined" variant="outlined" />
