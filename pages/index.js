@@ -1169,6 +1169,8 @@ function LinesPage()
 
   //console.log("dataParams", dataParams);
 
+var UIclassFilter = "0"
+
   return (
     <Grid container spacing={2}>
       <Grid item md={12}>
@@ -1180,35 +1182,73 @@ function LinesPage()
       </Grid>
       <Grid container>
       <Grid item md={3}>common g1 mining
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="mining"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g1" profFilter="mining"/>
       </Grid><Grid item md={3}>common g1 gardening
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="gardening"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g1" profFilter="gardening"/>
       </Grid><Grid item md={3}>common g1 fishing
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="fishing"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g1" profFilter="fishing"/>
       </Grid><Grid item md={3}>common g1 foraging
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g1" profFilter="foraging"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g1" profFilter="foraging"/>
       </Grid>
       </Grid>
 
       <Grid container>
       <Grid item md={3}>uncommon g1 mining
-      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="mining"/>
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g1" profFilter="mining"/>
       </Grid><Grid item md={3}>uncommon g1 gardening
-      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="gardening"/>
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g1" profFilter="gardening"/>
       </Grid><Grid item md={3}>uncommon g1 fishing
-      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="fishing"/>
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g1" profFilter="fishing"/>
       </Grid><Grid item md={3}>uncommon g1 foraging
-      <LazyChartOne data={dataParams} classFilter="0" rarityFilter="1" genFilter="g1" profFilter="foraging"/>
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g1" profFilter="foraging"/>
+      </Grid>
       </Grid>
 
+      <Grid container>
       <Grid item md={3}>common g2 mining
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="mining"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g2" profFilter="mining"/>
       </Grid><Grid item md={3}>common g2 gardening
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="gardening"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g2" profFilter="gardening"/>
       </Grid><Grid item md={3}>common g2 fishing
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="fishing"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g2" profFilter="fishing"/>
       </Grid><Grid item md={3}>common g2 foraging
-        <LazyChartOne data={dataParams} classFilter="0" rarityFilter="0" genFilter="g2" profFilter="foraging"/>
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g2" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>uncommon g2 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g2" profFilter="mining"/>
+      </Grid><Grid item md={3}>uncommon g2 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g2" profFilter="gardening"/>
+      </Grid><Grid item md={3}>uncommon g2 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g2" profFilter="fishing"/>
+      </Grid><Grid item md={3}>uncommon g2 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g2" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>common g3 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g3" profFilter="mining"/>
+      </Grid><Grid item md={3}>common g3 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g3" profFilter="gardening"/>
+      </Grid><Grid item md={3}>common g3 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g3" profFilter="fishing"/>
+      </Grid><Grid item md={3}>common g3 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g3" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>uncommon g3 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g3" profFilter="mining"/>
+      </Grid><Grid item md={3}>uncommon g3 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g3" profFilter="gardening"/>
+      </Grid><Grid item md={3}>uncommon g3 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g3" profFilter="fishing"/>
+      </Grid><Grid item md={3}>uncommon g3 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g3" profFilter="foraging"/>
       </Grid>
       </Grid>
 
