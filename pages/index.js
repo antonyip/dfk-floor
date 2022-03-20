@@ -23,7 +23,7 @@ import Image from 'next/image';
 import axios from 'axios';
 import CircularProgress from '@mui/material/CircularProgress'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { DateRange, Power } from '@mui/icons-material';
+import { ConstructionOutlined, DateRange, Power } from '@mui/icons-material';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import date from 'date-and-time';
@@ -330,32 +330,27 @@ function HeroValuePage()
   "HERO_PROFESSIONS_FISHING":"0"
   */
   const gridColDef = [
-    { field: 'BLOCK_TIMESTAMP', headerName: 'BLOCK_TIMESTAMP' },
-    { field: 'HERO_ID', headerName: 'HERO_ID' },
-    { field: 'TOTAL_JEWELS', headerName: 'TOTAL_JEWELS' },
-    { field: 'SUMMONING_INFO_MAXSUMMONS', headerName: 'SUMMONING_INFO_MAXSUMMONS' },
-    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT' },
-    { field: 'HERO_INFO_STATGENES', headerName: 'HERO_INFO_STATGENES' },
-    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY' },
-    { field: 'HERO_INFO_GENERATION', headerName: 'HERO_INFO_GENERATION' },
-    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS' },
-    { field: 'HERO_INFO_SUBCLASS', headerName: 'HERO_INFO_SUBCLASS' },
-    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL' },
-    { field: 'HERO_PROFESSIONS_MINING', headerName: 'HERO_PROFESSIONS_MINING' },
-    { field: 'HERO_PROFESSIONS_GARDENING', headerName: 'HERO_PROFESSIONS_GARDENING' },
-    { field: 'HERO_PROFESSIONS_FORAGING', headerName: 'HERO_PROFESSIONS_FORAGING' },
-    { field: 'HERO_PROFESSIONS_FISHING', headerName: 'HERO_PROFESSIONS_FISHING' },
+    { field: 'BLOCK_TIMESTAMP', headerName: 'time' },
+    { field: 'HERO_ID', headerName: 'id' },
+    { field: 'TOTAL_JEWELS', headerName: 'jew' },
+    { field: 'SUMMONING_INFO_MAXSUMMONS', headerName: 'maxsum' },
+    { field: 'SUMMONS_LEFT', headerName: 'sumleft' },
+    { field: 'STR_RARITY', headerName: 'rarity' },
+    { field: 'HERO_INFO_GENERATION', headerName: 'gen' },
+    { field: 'STR_CLASS', headerName: 'class' },
+    { field: 'STR_SUBCLASS', headerName: 'subclass' },
+    { field: 'HERO_STATE_LEVEL', headerName: 'level' },
+    { field: 'HERO_INFO_STATGENES', headerName: 'gene' },
+    //{ field: 'HERO_PROFESSIONS_MINING', headerName: 'HERO_PROFESSIONS_MINING' },
+    //{ field: 'HERO_PROFESSIONS_GARDENING', headerName: 'HERO_PROFESSIONS_GARDENING' },
+    //{ field: 'HERO_PROFESSIONS_FORAGING', headerName: 'HERO_PROFESSIONS_FORAGING' },
+    //{ field: 'HERO_PROFESSIONS_FISHING', headerName: 'HERO_PROFESSIONS_FISHING' },
   ];
 
-  var dataParams = {}
   data.data.forEach(element => {
-    if (element.U_TIME !== undefined )
-    {
-      if (dataParams[element.HERO_INFO_CLASS] === undefined)
-      {
-        dataParams[element.HERO_INFO_CLASS] = {}
-      }
-    }
+    element.STR_CLASS = CLASS_INT_TO_STRING[element.HERO_INFO_CLASS];
+    element.STR_SUBCLASS = CLASS_INT_TO_STRING[element.HERO_INFO_SUBCLASS];
+    element.STR_RARITY = RARITY_INT_TO_STRING[element.HERO_INFO_RARITY];
   });
 
   return (
@@ -391,24 +386,34 @@ function CalcsPage()
   "MEDIAN_JEWEL":2150,"MODE_JEWEL":2150,"TW_AVERAGE":2434.722222222222,"RANGE":1643.75,"SAMPLE_SIZE":6}
   */
   const gridColDef = [
-    { field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS' },
-    { field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY' },
-    { field: 'PROFESSION_MAIN', headerName: 'PROFESSION_MAIN' },
-    { field: 'SUMMONS_LEFT', headerName: 'SUMMONS_LEFT' },
-    { field: 'HERO_INFO_GENERATION', headerName: 'HERO_INFO_GENERATION' },
-    { field: 'MIN_JEWEL', headerName: 'MIN_JEWEL' },
-    { field: 'MAX_JEWEL', headerName: 'MAX_JEWEL' },
-    { field: 'AVG_JEWEL', headerName: 'AVG_JEWEL' },
-    { field: 'MEDIAN_JEWEL', headerName: 'MEDIAN_JEWEL' },
-    { field: 'MODE_JEWEL', headerName: 'MODE_JEWEL' },
-    { field: 'TW_AVERAGE', headerName: 'TW_AVERAGE' },
-    { field: 'HERO_STATE_LEVEL', headerName: 'HERO_STATE_LEVEL' },
-    { field: 'RANGE', headerName: 'RANGE' },
-    { field: 'SAMPLE_SIZE', headerName: 'SAMPLE_SIZE' },
+    //{ field: 'HERO_INFO_CLASS', headerName: 'HERO_INFO_CLASS' },
+    //{ field: 'HERO_INFO_RARITY', headerName: 'HERO_INFO_RARITY' },
+    { field: 'STR_RARITY', headerName: 'rarity' },
+    { field: 'HERO_INFO_GENERATION', headerName: 'gen' },
+    { field: 'STR_CLASS', headerName: 'class' },
+    //{ field: 'STR_SUBCLASS', headerName: 'subclass' },
+    { field: 'PROFESSION_MAIN', headerName: 'prof' },
+    { field: 'SUMMONS_LEFT', headerName: 'sumLeft' },
+    { field: 'HERO_INFO_GENERATION', headerName: 'gen' },
+    { field: 'MIN_JEWEL', headerName: 'min' },
+    { field: 'MAX_JEWEL', headerName: 'max' },
+    { field: 'AVG_JEWEL', headerName: 'avg' },
+    { field: 'MEDIAN_JEWEL', headerName: 'median' },
+    { field: 'MODE_JEWEL', headerName: 'mode' },
+    { field: 'TW_AVERAGE', headerName: 'TW' },
+    //{ field: 'HERO_STATE_LEVEL', headerName: 'level' },
+    { field: 'RANGE', headerName: 'r' },
+    { field: 'SAMPLE_SIZE', headerName: 's' },
   ];
 
   var dataParams = {}
   data.data.forEach(element => {
+
+    element.STR_CLASS = CLASS_INT_TO_STRING[element.HERO_INFO_CLASS];
+    element.STR_SUBCLASS = CLASS_INT_TO_STRING[element.HERO_INFO_SUBCLASS];
+    element.STR_RARITY = RARITY_INT_TO_STRING[element.HERO_INFO_RARITY];
+    element.TW_AVERAGE = Math.round(element.TW_AVERAGE * 100) / 100
+    element.AVG_JEWEL = Math.round(element.AVG_JEWEL * 100) / 100
     if (element.U_TIME !== undefined )
     {
       if (dataParams[element.HERO_INFO_CLASS] === undefined)
@@ -666,6 +671,7 @@ function LinesPage()
   const [gqldata4,setgqlData4] = useState("")
   const [gqldata5,setgqlData5] = useState("")
   const [gqldata6,setgqlData6] = useState("")
+  const [UIclassFilter,setUIclassFilter] = useState("0");
   React.useEffect(() => {
     axios.get("/api/getFloors").then (response => {
       setData(response);
@@ -1052,14 +1058,15 @@ function LinesPage()
                   });
   },[])
 
-  if (gqldata0 === "") return (<div><CircularProgress />0</div>);
-  if (gqldata1 === "") return (<div><CircularProgress />1</div>);
-  if (gqldata2 === "") return (<div><CircularProgress />2</div>);
-  if (gqldata3 === "") return (<div><CircularProgress />3</div>);
-  if (gqldata4 === "") return (<div><CircularProgress />4</div>);
-  if (gqldata5 === "") return (<div><CircularProgress />5</div>);
-  if (gqldata6 === "") return (<div><CircularProgress />6</div>);
-  if (data === "") return (<div><CircularProgress />7</div>);
+  var constMaxLoad = 7;
+  if (gqldata0 === "") return (<div><CircularProgress />0/{constMaxLoad}</div>);
+  if (gqldata1 === "") return (<div><CircularProgress />1/{constMaxLoad}</div>);
+  if (gqldata2 === "") return (<div><CircularProgress />2/{constMaxLoad}</div>);
+  if (gqldata3 === "") return (<div><CircularProgress />3/{constMaxLoad}</div>);
+  if (gqldata4 === "") return (<div><CircularProgress />4/{constMaxLoad}</div>);
+  if (gqldata5 === "") return (<div><CircularProgress />5/{constMaxLoad}</div>);
+  if (gqldata6 === "") return (<div><CircularProgress />6/{constMaxLoad}</div>);
+  if (data === "") return (<div><CircularProgress />7/{constMaxLoad}</div>);
 
   var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0, "tavernFloor":0, "calc":25}
 
@@ -1140,15 +1147,14 @@ function LinesPage()
           d_prof = h.profession;
           d_maxsum = h.maxSummons;
           d_sum = h.summons;
-          if (dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["tavernFloor"] === 0
-          || dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["tavernFloor"] > h.salePrice/10**18
+          var interested = dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()];
+          if (interested["tavernFloor"] === 0 || interested["tavernFloor"] > h.salePrice/10**18
           )
           {
-            dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["tavernFloor"] = h.salePrice/10**18
-
-            if (dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["calc"] > h.salePrice/10**18)
+            interested["tavernFloor"] = h.salePrice/10**18
+            if (interested["calcs"] > h.salePrice/10**18)
             {
-              dataParams[CLASS_STRING_TO_INT[h.mainClass]]["Rarity"][h.rarity.toString()]["g"+h.generation.toString()][h.profession][(h.maxSummons - h.summons).toString()]["calc"] = h.salePrice/10**18
+              interested["calcs"] = h.salePrice/10**18
             }
           }
         }
@@ -1169,8 +1175,50 @@ function LinesPage()
 
   //console.log("dataParams", dataParams);
 
-var UIclassFilter = "0"
+  var doOnce = 5;
+  try {
+    
+    heroClass.forEach(c => {
+      rarity.forEach(r => {
+        generations.forEach(g => {
+          professions.forEach(p => {
+            var interested = dataParams[c]["Rarity"][r][g][p];
+            var upFloor = 25;
+            sumLeft.forEach ((v,i,a) => {
+              upFloor = (interested[v]["calc"] > upFloor) ? interested[v]["calc"] : upFloor
+              interested[v]["calc"] = upFloor;
+              if (doOnce > 0)
+              {
+                console.log(interested[v]["calc"]);
+                doOnce -=1;
+              }
+              
+            })
+          })
+        })
+      })
+    })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return <>error!</>
+  }
 
+
+  var textUIclassFilter = "0"
+  function setTextFieldHeroClass(evt)
+  {
+    console.log(evt.target.value);
+    textUIclassFilter = evt.target.value;
+  }
+  function UpdateHeroClass()
+  {
+    setUIclassFilter(textUIclassFilter);
+  }
+
+  
+  
   return (
     <Grid container spacing={2}>
       <Grid item md={12}>
@@ -1180,6 +1228,10 @@ var UIclassFilter = "0"
         <h2>Warriors - Price Per SummonsLeft</h2>
         <h2>Green line is Sold, Red is in Min Tavern Price, blue is the number we are adjusting</h2>
       </Grid>
+      <TextField id="HeroClassTextField" onChange={ setTextFieldHeroClass } label="Outlined" variant="outlined" />
+      <Button variant="contained" onClick={ UpdateHeroClass }>Load Class</Button>
+
+      <h2> Gen - 1</h2>
       <Grid container>
       <Grid item md={3}>common g1 mining
         <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g1" profFilter="mining"/>
@@ -1205,6 +1257,43 @@ var UIclassFilter = "0"
       </Grid>
 
       <Grid container>
+      <Grid item md={3}>rare g1 mining
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g1" profFilter="mining"/>
+      </Grid><Grid item md={3}>rare g1 gardening
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g1" profFilter="gardening"/>
+      </Grid><Grid item md={3}>rare g1 fishing
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g1" profFilter="fishing"/>
+      </Grid><Grid item md={3}>rare g1 foraging
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g1" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>leggy g1 mining
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g1" profFilter="mining"/>
+      </Grid><Grid item md={3}>leggy g1 gardening
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g1" profFilter="gardening"/>
+      </Grid><Grid item md={3}>leggy g1 fishing
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g1" profFilter="fishing"/>
+      </Grid><Grid item md={3}>leggy g1 foraging
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g1" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>mythic g1 mining
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g1" profFilter="mining"/>
+      </Grid><Grid item md={3}>mythic g1 gardening
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g1" profFilter="gardening"/>
+      </Grid><Grid item md={3}>mythic g1 fishing
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g1" profFilter="fishing"/>
+      </Grid><Grid item md={3}>mythic g1 foraging
+      <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g1" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <h2> Gen - 2</h2>
+      <Grid container>
       <Grid item md={3}>common g2 mining
         <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g2" profFilter="mining"/>
       </Grid><Grid item md={3}>common g2 gardening
@@ -1229,6 +1318,43 @@ var UIclassFilter = "0"
       </Grid>
 
       <Grid container>
+      <Grid item md={3}>rare g2 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g2" profFilter="mining"/>
+      </Grid><Grid item md={3}>rare g2 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g2" profFilter="gardening"/>
+      </Grid><Grid item md={3}>rare g2 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g2" profFilter="fishing"/>
+      </Grid><Grid item md={3}>rare g2 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g2" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>leggy g2 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g2" profFilter="mining"/>
+      </Grid><Grid item md={3}>leggy g2 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g2" profFilter="gardening"/>
+      </Grid><Grid item md={3}>leggy g2 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g2" profFilter="fishing"/>
+      </Grid><Grid item md={3}>leggy g2 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g2" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>mythic g2 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g2" profFilter="mining"/>
+      </Grid><Grid item md={3}>mythic g2 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g2" profFilter="gardening"/>
+      </Grid><Grid item md={3}>mythic g2 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g2" profFilter="fishing"/>
+      </Grid><Grid item md={3}>mythic g2 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g2" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <h2> Gen - 3</h2>
+      <Grid container>
       <Grid item md={3}>common g3 mining
         <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="0" genFilter="g3" profFilter="mining"/>
       </Grid><Grid item md={3}>common g3 gardening
@@ -1249,6 +1375,42 @@ var UIclassFilter = "0"
         <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g3" profFilter="fishing"/>
       </Grid><Grid item md={3}>uncommon g3 foraging
         <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="1" genFilter="g3" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>rare g3 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g3" profFilter="mining"/>
+      </Grid><Grid item md={3}>rare g3 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g3" profFilter="gardening"/>
+      </Grid><Grid item md={3}>rare g3 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g3" profFilter="fishing"/>
+      </Grid><Grid item md={3}>rare g3 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="2" genFilter="g3" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>leggy g3 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g3" profFilter="mining"/>
+      </Grid><Grid item md={3}>leggy g3 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g3" profFilter="gardening"/>
+      </Grid><Grid item md={3}>leggy g3 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g3" profFilter="fishing"/>
+      </Grid><Grid item md={3}>leggy g3 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="3" genFilter="g3" profFilter="foraging"/>
+      </Grid>
+      </Grid>
+
+      <Grid container>
+      <Grid item md={3}>mythic g3 mining
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g3" profFilter="mining"/>
+      </Grid><Grid item md={3}>mythic g3 gardening
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g3" profFilter="gardening"/>
+      </Grid><Grid item md={3}>mythic g3 fishing
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g3" profFilter="fishing"/>
+      </Grid><Grid item md={3}>mythic g3 foraging
+        <LazyChartOne data={dataParams} classFilter={UIclassFilter} rarityFilter="4" genFilter="g3" profFilter="foraging"/>
       </Grid>
       </Grid>
 
@@ -1299,12 +1461,6 @@ function PermanentDrawerLeft() {
         </List>
         <Divider />
         <List>
-            {/* <ListItem button key={'HeroSales'} onClick={() => setPage(1)}>
-              <ListItemIcon>
-                <Image alt="" src='/meLogo.png' height={24} width={24} />
-              </ListItemIcon>
-              <ListItemText primary={'HeroSales'} />
-            </ListItem> */}
             <ListItem button key={'CalcsPage'} onClick={() => setPage(2)}>
               <ListItemIcon>
                 <Image alt="" src='/meLogo.png' height={24} width={24} />
