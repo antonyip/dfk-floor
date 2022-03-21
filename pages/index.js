@@ -535,9 +535,9 @@ function HeroValuationPage()
   
 
 
-
-  const statGenes = decodeRecessiveGeneAndNormalize("0x"+parseInt(dataHero.statgenes,10).toString(16))
-  //console.log(statGenes);
+  
+  const statGenes = decodeRecessiveGeneAndNormalize("0x"+BigInt(dataHero.statgenes).toString(16).padStart(64,'0'))
+  //console.log("0x"+BigInt(dataHero.statgenes).toString(16));
   //console.log(dataParams);
 /*
 [{"id":"77013","numberid":"77013","owner":"0x0Ba43bAe4613E03492e4C17Af3B014B6c3202B9d","creator":null,
