@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "encode": "node dev/converter.js"
   },
   "dependencies": {
     "@apollo/client": "^3.5.10",
@@ -15,6 +16,7 @@
     "@mui/icons-material": "^5.4.2",
     "@mui/material": "^5.4.2",
     "@mui/x-data-grid": "^5.5.1",
+    "@thanpolas/degenking": "^0.4.0",
     "@thanpolas/dfk-hero": "^0.2.2",
     "axios": "^0.26.0",
     "date-and-time": "^2.1.2",

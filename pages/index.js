@@ -32,7 +32,7 @@ import {
   decodeRecessiveGenesAndNormalize,
   decodeRecessiveGeneAndNormalize,
   CONSTANTS as dfk_consts,
-} from '@thanpolas/dfk-hero'
+} from '@thanpolas/degenking'
 
 import Chart from 'chart.js/auto';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
@@ -44,6 +44,19 @@ import {
   useQuery,
   gql
 } from "@apollo/client";
+
+const crypto = require("crypto")
+const algorithm = 'aes-256-ctr';
+const iv = Buffer.from([0x0a,0xf7,0xc1,0xda,0xf3,0xa7,0x88,0x55,0xad,0xc7,0xb7,0x54,0x26,0x52,0x90,0x32])
+
+const ant_decrypt = (secretKey, hash) => {
+
+    const decipher = crypto.createDecipheriv(algorithm, secretKey, Buffer.from(iv, 'hex'));
+
+    const decrypted = Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]);
+
+    return decrypted.toString();
+};
 
 const defaultOptions = {
   watchQuery: {
@@ -172,6 +185,11 @@ function generateLineChartData(xValues, yValues) {
         type: 'line',
         data: yValues[2],
         backgroundColor: "#ff0000"
+      },
+      {
+        type: 'line',
+        data: yValues[3],
+        backgroundColor: "#ff8c00"
       }
     ],
   };
@@ -188,6 +206,7 @@ function LazyChartOne(props)
   var yValues = []
   var yValues2 = [];
   var yValues3 = [];
+  var yValues4 = [];
   var i = 0;
   for (var kClass in data)
   {
@@ -217,6 +236,9 @@ function LazyChartOne(props)
 
                     const finalD3 = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["calc"]
                     yValues3.push(finalD3)
+
+                    const finalD4 = data[kClass]["Rarity"][kRare][kGen][kProf][kSummonsLeft]["ml1"]
+                    yValues4.push(finalD4)
                   }
                 }
               }
@@ -228,7 +250,7 @@ function LazyChartOne(props)
   }
 
   var chartOptions = generateChartOptions(title, showLabels);
-  var chartData = generateLineChartData(xValues, [yValues3, yValues, yValues2]);
+  var chartData = generateLineChartData(xValues, [yValues3, yValues, yValues2, yValues4]);
   
   return <Line md={6} options={chartOptions} data={chartData} height={null}/>
 }
@@ -671,10 +693,18 @@ function LinesPage()
   const [gqldata4,setgqlData4] = useState("")
   const [gqldata5,setgqlData5] = useState("")
   const [gqldata6,setgqlData6] = useState("")
+  const [mldata,setMLData] = useState("");
   const [UIclassFilter,setUIclassFilter] = useState("0");
+  const [password1,setPassword1] = useState("01234567890123456789012345678901");
   React.useEffect(() => {
     axios.get("/api/getFloors").then (response => {
       setData(response);
+    }).catch (error => {
+      console.log(error);
+    })
+
+    axios.get("/api/getMLPrice").then (response => {
+      setMLData(response);
     }).catch (error => {
       console.log(error);
     })
@@ -1058,7 +1088,9 @@ function LinesPage()
                   });
   },[])
 
-  var constMaxLoad = 7;
+  var constMaxLoad = 8;
+
+
   if (gqldata0 === "") return (<div><CircularProgress />0/{constMaxLoad}</div>);
   if (gqldata1 === "") return (<div><CircularProgress />1/{constMaxLoad}</div>);
   if (gqldata2 === "") return (<div><CircularProgress />2/{constMaxLoad}</div>);
@@ -1067,8 +1099,24 @@ function LinesPage()
   if (gqldata5 === "") return (<div><CircularProgress />5/{constMaxLoad}</div>);
   if (gqldata6 === "") return (<div><CircularProgress />6/{constMaxLoad}</div>);
   if (data === "") return (<div><CircularProgress />7/{constMaxLoad}</div>);
+  if (mldata === "") return (<div><CircularProgress />8/{constMaxLoad}</div>);
 
-  var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0, "tavernFloor":0, "calc":25}
+  //console.log(mldata.data.j)
+  var mlJSON = password1.length === 32 ? ant_decrypt(password1, mldata.data.j) : "z";
+
+  if (mlJSON[0] !== "{")
+  {
+    mlJSON = "{}"
+  }
+  else
+  {
+    mlJSON = JSON.parse(mlJSON);
+  }
+    
+
+  //console.log(mlJSON);
+
+  var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0, "tavernFloor":0, "calc":25, "ml1":0}
 
   var dataParams = {
     "0":{"Rarity":{"0":{"z":""},"1":{"z":""},"2":{"z":""},"3":{"z":""},"4":{"z":""}}},
@@ -1093,6 +1141,7 @@ function LinesPage()
   var generations = ["g0","g1","g2","g3","g4","g5","g6","g7","g8","g9","g10","g11"]
   var professions = ["mining","fishing","gardening","foraging"]
   var sumLeft = ["0","1","2","3","4","5","6","7","8","9","10"]
+
   heroClass.forEach(c => {
     rarity.forEach(r => {
       dataParams[c]["Rarity"][r] = {}
@@ -1102,11 +1151,26 @@ function LinesPage()
           dataParams[c]["Rarity"][r][g][p] = {}
           sumLeft.forEach (s => {
             dataParams[c]["Rarity"][r][g][p][s] = JSON.parse(JSON.stringify(priceParams));
+            try {
+            if (mlJSON !== "{}")
+            {
+              dataParams[c]["Rarity"][r][g][p][s]["ml1"] = mlJSON[c]["Rarity"][r][g][p][s]
+            }
+            } catch(err)
+            {
+              //console.log(mlJSON[c])
+              //console.log(c,r,g,p,s);
+              //console.log(err)
+              //return <>zzz</>;
+            }
+
           })
         })
       })
     })
   })
+
+  console.log(dataParams);
 
   //var priceParams = {"min": 0, "max": 0, "avg":0, "median":0, "mode":0, "twavg":0, "range":0, "size":0}
     /*
@@ -1217,6 +1281,18 @@ function LinesPage()
     setUIclassFilter(textUIclassFilter);
   }
 
+  var textUIPassword = "0"
+  function setTextFieldPassword(evt)
+  {
+    console.log(evt.target.value);
+    textUIPassword = evt.target.value;
+  }
+  function UpdatePassword()
+  {
+    setPassword1(textUIPassword);
+  }
+
+
   
   
   return (
@@ -1228,9 +1304,10 @@ function LinesPage()
         <h2>Warriors - Price Per SummonsLeft</h2>
         <h2>Green line is Sold, Red is in Min Tavern Price, blue is the number we are adjusting</h2>
       </Grid>
-      <TextField id="HeroClassTextField" onChange={ setTextFieldHeroClass } label="Outlined" variant="outlined" />
+      <TextField id="HeroClassTextField" onChange={ setTextFieldHeroClass } label="HeroClass" variant="outlined" />
       <Button variant="contained" onClick={ UpdateHeroClass }>Load Class</Button>
-
+      <TextField id="PasswordTextField" onChange={ setTextFieldPassword } label="Password" variant="outlined" />
+      <Button variant="contained" onClick={ UpdatePassword }>Load Password</Button>
       <h2> Gen - 1</h2>
       <Grid container>
       <Grid item md={3}>common g1 mining
